@@ -13,7 +13,7 @@ def cell_1():
     import pandas as pd
     sales_df = pd.read_csv('/root/repo/data/sample/sales_data.csv')
     sales_df.head()
-    return
+    return sales_df
 
 @app.cell
 def cell_2():

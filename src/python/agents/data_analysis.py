@@ -72,8 +72,8 @@ class DataAnalysisAgent(BaseAgent):
             summary = {
                 'rows': len(df),
                 'columns': len(df.columns),
-                'memory_usage': df.memory_usage(deep=True).sum() / 1024**2,  # MB
-                'column_types': df.dtypes.value_counts().to_dict()
+                'memory_usage': float(df.memory_usage(deep=True).sum() / 1024**2),  # MB
+                'column_types': {str(k): v for k, v in df.dtypes.value_counts().to_dict().items()}
             }
             
             return {'success': True, 'summary': summary}

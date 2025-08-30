@@ -15,8 +15,10 @@ class NotebookBuilder:
         self.imports.append(import_statement)
         return self
     
-    def add_cell(self, code: str) -> 'NotebookBuilder':
-        """Add a code cell"""
+    def add_cell(self, code: str, returns: Optional[List[str]] = None) -> 'NotebookBuilder':
+        """Add a code cell with optional return variables"""
+        if returns:
+            code += f"\n#RETURN: {', '.join(returns)}"
         self.cells.append(code)
         return self
     
@@ -28,12 +30,11 @@ class NotebookBuilder:
     
     def add_data_load(self, variable_name: str, file_path: str) -> 'NotebookBuilder':
         """Add a cell to load data"""
-        code = f"""
-import pandas as pd
+        code = f"""import pandas as pd
 {variable_name} = pd.read_csv('{file_path}')
 {variable_name}.head()
-"""
-        self.cells.append(code.strip())
+#RETURN: {variable_name}"""
+        self.cells.append(code)
         return self
     
     def add_plot(self, data_var: str, plot_type: str = 'scatter', **kwargs) -> 'NotebookBuilder':
@@ -79,15 +80,33 @@ plt.show()
         content.append("app = mo.App()")
         content.append("")
         
+        # Track variables to return
+        all_vars = set()
+        
         # Add cells
         for i, cell_code in enumerate(self.cells):
             content.append(f"@app.cell")
             content.append(f"def cell_{i}():")
-            # Indent cell code
+            
+            # Look for explicit return directive
+            return_vars = []
+            cleaned_code = []
             for line in cell_code.split('\n'):
+                if line.strip().startswith('#RETURN:'):
+                    return_vars = [v.strip() for v in line.split(':', 1)[1].split(',')]
+                else:
+                    cleaned_code.append(line)
+            
+            # Indent cell code
+            for line in cleaned_code:
                 if line.strip():
                     content.append(f"    {line}")
-            content.append(f"    return")
+            
+            # Add return statement
+            if return_vars:
+                content.append(f"    return {', '.join(return_vars)}")
+            else:
+                content.append(f"    return")
             content.append("")
         
         # Add main
