@@ -1,6 +1,6 @@
 """
 Gemini LLM Client with cost optimization
-Uses Gemini 2.5 Flash for efficiency
+Uses Gemini 1.5 Flash for efficiency
 """
 
 import os
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class LLMConfig:
     """Configuration for LLM client"""
     api_key: str
-    model_name: str = "gemini-2.0-flash-exp"  # Using Flash for cost efficiency
+    model_name: str = "gemini-1.5-flash"  # Correct model name for Gemini Flash
     temperature: float = 0.3  # Lower temperature for consistent outputs
     max_tokens: int = 1000  # Limit response length
     cache_enabled: bool = True

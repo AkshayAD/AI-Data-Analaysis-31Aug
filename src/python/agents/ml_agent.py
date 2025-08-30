@@ -70,24 +70,62 @@ class MLAgent(BaseAgent):
             if task_type == 'auto':
                 task_type = 'classification' if df[target_column].nunique() < 10 else 'regression'
             
+            # Adjust test size based on dataset size
+            n_samples = len(X)
+            if n_samples < 50:
+                test_size = max(0.3, min(5, n_samples * 0.2)) / n_samples  # At least 30% or 5 samples
+            else:
+                test_size = 0.2
+            
             # Split data
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
+                X, y, test_size=test_size, random_state=42
             )
             
-            # Select and train model
+            # Select and train model (adjusted for small datasets)
             if model_type == 'auto':
                 if task_type == 'regression':
-                    model = RandomForestRegressor(n_estimators=100, random_state=42)
+                    # Use simpler model for small datasets
+                    if n_samples < 100:
+                        # Reduced complexity for small datasets
+                        model = RandomForestRegressor(
+                            n_estimators=10,  # Much fewer trees
+                            max_depth=3,  # Limit depth to prevent overfitting
+                            min_samples_split=5,  # Require more samples to split
+                            min_samples_leaf=3,  # Require more samples in leaves
+                            random_state=42
+                        )
+                    else:
+                        model = RandomForestRegressor(n_estimators=100, random_state=42)
                 else:
-                    model = RandomForestClassifier(n_estimators=100, random_state=42)
+                    if n_samples < 100:
+                        model = RandomForestClassifier(
+                            n_estimators=10,
+                            max_depth=3,
+                            min_samples_split=5,
+                            min_samples_leaf=3,
+                            random_state=42
+                        )
+                    else:
+                        model = RandomForestClassifier(n_estimators=100, random_state=42)
             elif model_type == 'linear':
                 if task_type == 'regression':
-                    model = LinearRegression()
+                    # Use Ridge regression for small datasets (regularization)
+                    from sklearn.linear_model import Ridge
+                    model = Ridge(alpha=1.0)
                 else:
-                    model = LogisticRegression(max_iter=1000)
+                    model = LogisticRegression(max_iter=1000, C=0.1)  # More regularization
             else:
-                model = RandomForestRegressor(n_estimators=100, random_state=42)
+                # Default to simple model for small datasets
+                if n_samples < 100:
+                    model = RandomForestRegressor(
+                        n_estimators=10, 
+                        max_depth=3,
+                        min_samples_split=5,
+                        random_state=42
+                    )
+                else:
+                    model = RandomForestRegressor(n_estimators=100, random_state=42)
             
             # Train
             model.fit(X_train, y_train)
@@ -266,13 +304,29 @@ class MLAgent(BaseAgent):
             df = pd.read_csv(data_path)
             X, y = self._prepare_data(df, target_column)
             
-            # Try multiple models
-            models = {
-                'LinearRegression': LinearRegression(),
-                'Ridge': Ridge(),
-                'RandomForest': RandomForestRegressor(n_estimators=50, random_state=42),
-                'GradientBoosting': GradientBoostingRegressor(n_estimators=50, random_state=42)
-            }
+            # Adjust models based on dataset size
+            n_samples = len(X)
+            
+            if n_samples < 100:
+                # Simpler models for small datasets
+                models = {
+                    'LinearRegression': LinearRegression(),
+                    'Ridge': Ridge(alpha=1.0),
+                    'RandomForest': RandomForestRegressor(
+                        n_estimators=10, 
+                        max_depth=3, 
+                        min_samples_split=5,
+                        random_state=42
+                    )
+                }
+            else:
+                # Standard models for larger datasets
+                models = {
+                    'LinearRegression': LinearRegression(),
+                    'Ridge': Ridge(),
+                    'RandomForest': RandomForestRegressor(n_estimators=50, random_state=42),
+                    'GradientBoosting': GradientBoostingRegressor(n_estimators=50, random_state=42)
+                }
             
             results = {}
             best_score = -float('inf')
