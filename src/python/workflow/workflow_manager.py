@@ -276,6 +276,57 @@ class WorkflowManager:
         logger.info(f"Created plan: {name} with {len(tasks)} tasks")
         return plan
     
+    def generate_analysis_tasks(
+        self,
+        objectives: List[str],
+        data_info: Optional[Dict] = None
+    ) -> List[Dict]:
+        """Generate tasks for UI - returns list of dicts instead of dataclass objects"""
+        tasks = self._generate_tasks_from_objectives(objectives, data_info.get('source', []) if data_info else [])
+        return [self._task_to_dict(task) for task in tasks]
+    
+    def _task_to_dict(self, task: AnalysisTask) -> Dict:
+        """Convert task to dictionary for UI"""
+        return {
+            'id': task.id,
+            'name': task.name,
+            'description': task.description,
+            'type': task.task_type.value,
+            'status': task.status.value,
+            'priority': 'high' if task.priority >= 4 else 'medium' if task.priority >= 2 else 'low',
+            'dependencies': task.dependencies,
+            'required_skills': self._get_required_skills(task.task_type),
+            'estimated_hours': self._estimate_task_hours(task.task_type)
+        }
+    
+    def _get_required_skills(self, task_type: TaskType) -> List[str]:
+        """Get required skills for task type"""
+        skills_map = {
+            TaskType.DATA_PROFILING: ['python', 'data_analysis', 'statistics'],
+            TaskType.STATISTICAL_ANALYSIS: ['statistics', 'python', 'hypothesis_testing'],
+            TaskType.CORRELATION_ANALYSIS: ['statistics', 'python', 'data_analysis'],
+            TaskType.TIME_SERIES_ANALYSIS: ['time_series', 'statistics', 'python'],
+            TaskType.PREDICTIVE_MODELING: ['machine_learning', 'python', 'statistics'],
+            TaskType.ANOMALY_DETECTION: ['machine_learning', 'statistics', 'python'],
+            TaskType.SEGMENTATION: ['clustering', 'machine_learning', 'python'],
+            TaskType.VISUALIZATION: ['visualization', 'python', 'communication']
+        }
+        return skills_map.get(task_type, ['python', 'data_analysis'])
+    
+    def _estimate_task_hours(self, task_type: TaskType) -> float:
+        """Estimate hours for task type"""
+        hours_map = {
+            TaskType.DATA_PROFILING: 1.0,
+            TaskType.STATISTICAL_ANALYSIS: 2.0,
+            TaskType.CORRELATION_ANALYSIS: 1.5,
+            TaskType.TIME_SERIES_ANALYSIS: 3.0,
+            TaskType.PREDICTIVE_MODELING: 4.0,
+            TaskType.ANOMALY_DETECTION: 2.5,
+            TaskType.SEGMENTATION: 3.0,
+            TaskType.VISUALIZATION: 1.5
+        }
+        return hours_map.get(task_type, 2.0)
+    
     def _generate_tasks_from_objectives(
         self,
         objectives: List[str],
