@@ -3,6 +3,7 @@ from .data_analysis import DataAnalysisAgent
 from .orchestrator import AgentOrchestrator, Task
 from .visualization import VisualizationAgent
 from .ml_agent import MLAgent
+from .intelligent_agent import IntelligentAgent
 
 __all__ = [
     'BaseAgent', 
@@ -10,5 +11,6 @@ __all__ = [
     'AgentOrchestrator',
     'Task',
     'VisualizationAgent',
-    'MLAgent'
+    'MLAgent',
+    'IntelligentAgent'
 ]
