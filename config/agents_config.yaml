@@ -1,0 +1,198 @@
+# Agent Configuration for Agentic Marimo System
+# This file defines agent capabilities, roles, and collaboration rules
+
+agents:
+  analysis_agent:
+    name: "Data Analysis Agent"
+    class: "agents.AnalysisAgent"
+    capabilities:
+      - statistical_analysis
+      - time_series_analysis
+      - correlation_analysis
+      - anomaly_detection
+      - data_profiling
+      - exploratory_data_analysis
+    max_concurrent_tasks: 3
+    priority: high
+    notebook_templates:
+      - data_analysis
+      - statistical_report
+      - time_series_forecast
+      - anomaly_detection
+    
+  ml_agent:
+    name: "Machine Learning Agent"
+    class: "agents.MLAgent"
+    capabilities:
+      - model_training
+      - hyperparameter_tuning
+      - model_evaluation
+      - feature_engineering
+      - model_deployment
+      - ensemble_learning
+    max_concurrent_tasks: 2
+    priority: high
+    notebook_templates:
+      - ml_pipeline
+      - feature_engineering
+      - model_comparison
+      - hyperparameter_search
+    
+  data_agent:
+    name: "Data Processing Agent"
+    class: "agents.DataAgent"
+    capabilities:
+      - data_loading
+      - data_cleaning
+      - data_transformation
+      - data_validation
+      - etl_pipeline
+      - data_integration
+    max_concurrent_tasks: 5
+    priority: medium
+    notebook_templates:
+      - data_loader
+      - data_cleaner
+      - etl_pipeline
+      - data_validator
+    
+  visualization_agent:
+    name: "Visualization Agent"
+    class: "agents.VisualizationAgent"
+    capabilities:
+      - chart_generation
+      - dashboard_creation
+      - interactive_plots
+      - report_generation
+      - data_storytelling
+    max_concurrent_tasks: 4
+    priority: medium
+    notebook_templates:
+      - visualization_dashboard
+      - interactive_report
+      - chart_gallery
+    
+  report_agent:
+    name: "Reporting Agent"
+    class: "agents.ReportAgent"
+    capabilities:
+      - report_generation
+      - summary_creation
+      - insight_extraction
+      - documentation
+      - export_formatting
+    max_concurrent_tasks: 3
+    priority: low
+    notebook_templates:
+      - report_template
+      - executive_summary
+      - technical_documentation
+
+# Task routing rules - maps task types to agents
+task_routing:
+  # Data tasks
+  load_data: [data_agent]
+  clean_data: [data_agent]
+  transform_data: [data_agent]
+  validate_data: [data_agent]
+  
+  # Analysis tasks
+  statistical_analysis: [analysis_agent]
+  time_series_forecast: [analysis_agent]
+  correlation_analysis: [analysis_agent]
+  anomaly_detection: [analysis_agent, ml_agent]
+  
+  # ML tasks
+  train_model: [ml_agent]
+  evaluate_model: [ml_agent]
+  tune_hyperparameters: [ml_agent]
+  deploy_model: [ml_agent]
+  
+  # Visualization tasks
+  create_charts: [visualization_agent]
+  build_dashboard: [visualization_agent]
+  generate_report: [report_agent, visualization_agent]
+  
+  # Complex tasks (require multiple agents)
+  end_to_end_pipeline: [data_agent, analysis_agent, ml_agent, visualization_agent, report_agent]
+  exploratory_analysis: [data_agent, analysis_agent, visualization_agent]
+  ml_workflow: [data_agent, ml_agent, visualization_agent, report_agent]
+
+# Collaboration rules for multi-agent tasks
+collaboration_rules:
+  sequential_execution:
+    # Tasks that must be executed in sequence
+    - [load_data, clean_data, transform_data]
+    - [train_model, evaluate_model, deploy_model]
+    - [analyze_data, create_visualization, generate_report]
+  
+  parallel_execution:
+    # Tasks that can be executed in parallel
+    - [statistical_analysis, correlation_analysis]
+    - [create_charts, build_dashboard]
+    - [model_training, feature_engineering]
+  
+  dependency_rules:
+    # Task dependencies (task: [required_tasks])
+    clean_data: [load_data]
+    transform_data: [clean_data]
+    train_model: [transform_data]
+    evaluate_model: [train_model]
+    create_visualization: [analyze_data]
+    generate_report: [analyze_data, create_visualization]
+
+# Agent communication protocol
+communication:
+  message_format: json
+  max_message_size: 10485760  # 10MB
+  timeout: 300  # 5 minutes
+  retry_policy:
+    max_retries: 3
+    backoff_multiplier: 2
+    initial_delay: 1
+
+# Resource allocation
+resources:
+  max_total_agents: 20
+  max_notebooks_per_agent: 5
+  max_memory_per_agent: 2048  # MB
+  max_execution_time: 3600  # seconds
+  
+# Performance settings
+performance:
+  enable_caching: true
+  cache_ttl: 3600  # seconds
+  enable_parallel_execution: true
+  max_parallel_tasks: 10
+  enable_resource_pooling: true
+  
+# Monitoring and logging
+monitoring:
+  log_level: INFO
+  enable_metrics: true
+  metrics_interval: 60  # seconds
+  enable_tracing: true
+  trace_sample_rate: 0.1
+  
+# Security settings
+security:
+  enable_authentication: true
+  enable_authorization: true
+  enable_audit_logging: true
+  max_code_execution_time: 300  # seconds
+  allowed_imports:
+    - pandas
+    - numpy
+    - scikit-learn
+    - matplotlib
+    - seaborn
+    - plotly
+    - requests
+    - json
+    - datetime
+  blocked_imports:
+    - os
+    - sys
+    - subprocess
+    - eval
+    - exec
