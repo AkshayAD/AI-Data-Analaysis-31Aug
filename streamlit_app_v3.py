@@ -19,10 +19,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'python'))
 
 from auth.authentication import auth_manager
 from workflow.workflow_manager import WorkflowManager
-from agents.data_analysis_agents import (
-    DataCleaningAgent, StatisticalAnalysisAgent,
-    VisualizationAgent, MLAnalysisAgent
-)
+from agents import DataAnalysisAgent, VisualizationAgent, MLAgent
 from execution.task_executor import TaskExecutor
 from reporting.report_generator import ReportGenerator
 

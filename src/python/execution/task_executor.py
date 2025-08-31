@@ -23,20 +23,22 @@ class TaskExecutor:
     def _initialize_agents(self) -> Dict:
         """Initialize available analysis agents"""
         try:
-            from agents.data_analysis_agents import (
-                DataCleaningAgent, StatisticalAnalysisAgent,
-                VisualizationAgent, MLAnalysisAgent
-            )
+            from agents import DataAnalysisAgent, VisualizationAgent, MLAgent
+            
+            # Use available agents for different task types
+            data_agent = DataAnalysisAgent()
+            viz_agent = VisualizationAgent()
+            ml_agent = MLAgent()
             
             return {
-                'data_profiling': DataCleaningAgent(),
-                'statistical_analysis': StatisticalAnalysisAgent(),
-                'visualization': VisualizationAgent(),
-                'predictive_modeling': MLAnalysisAgent(),
-                'anomaly_detection': MLAnalysisAgent(),
-                'segmentation': MLAnalysisAgent(),
-                'correlation_analysis': StatisticalAnalysisAgent(),
-                'time_series': StatisticalAnalysisAgent()
+                'data_profiling': data_agent,
+                'statistical_analysis': data_agent,
+                'visualization': viz_agent,
+                'predictive_modeling': ml_agent,
+                'anomaly_detection': ml_agent,
+                'segmentation': ml_agent,
+                'correlation_analysis': data_agent,
+                'time_series': data_agent
             }
         except Exception as e:
             logger.error(f"Failed to initialize agents: {e}")
