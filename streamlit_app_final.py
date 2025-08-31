@@ -69,6 +69,14 @@ with st.container():
         with col2:
             st.markdown("#### 🎯 Analysis Options")
             
+            # Analysis objectives
+            objectives = st.text_area(
+                "Analysis Objectives",
+                placeholder="Enter the objectives of your analysis (e.g., identify sales trends, detect anomalies, predict customer churn...)",
+                height=100,
+                help="Describe what you want to achieve with this analysis"
+            )
+            
             # Analysis types as checkboxes
             do_profiling = st.checkbox("Data Profiling", value=True)
             do_statistics = st.checkbox("Statistical Analysis", value=True)
@@ -87,6 +95,7 @@ with st.container():
 # Process analysis when form is submitted
 if submitted:
     st.session_state.current_analysis = analysis_name
+    st.session_state.analysis_objectives = objectives
     
     # Prepare data
     data = None
@@ -241,7 +250,7 @@ if submitted:
                 plan = {
                     'id': str(uuid.uuid4()),
                     'name': analysis_name,
-                    'objectives': ["Automated analysis"],
+                    'objectives': [st.session_state.get('analysis_objectives', '')] if st.session_state.get('analysis_objectives') else ["Automated analysis"],
                     'tasks': tasks
                 }
                 
