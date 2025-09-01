@@ -1,0 +1,23 @@
+# Essential Dependencies for Enterprise Streamlit App
+# Minimal requirements for production deployment
+
+# Core
+streamlit>=1.28.0
+pandas>=1.5.0
+numpy>=1.23.0
+plotly>=5.10.0
+
+# Machine Learning
+scikit-learn>=1.1.0
+scipy>=1.10.0
+
+# Utilities
+python-dotenv>=0.20.0
+
+# Optional: LLM Integration (comment out if not using Gemini)
+google-generativeai>=0.3.0
+
+# Optional: Marimo notebooks (comment out if not using)
+# marimo>=0.1.0
+
+# Note: Keep minimal for faster Streamlit Cloud deployment
