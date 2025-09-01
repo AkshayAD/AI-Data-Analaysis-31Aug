@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f6;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+        }
+        .header {
+            background: #1f77b4;
+            color: white;
+            padding: 20px 50px;
+            font-size: 32px;
+            font-weight: bold;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            height: calc(100% - 100px);
+        }
+        .sidebar {
+            width: 350px;
+            background: #e8e8e8;
+            padding: 20px;
+        }
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .nav-item {
+            padding: 10px;
+            margin: 5px 0;
+            color: #666;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #1f77b4;
+            font-weight: bold;
+        }
+        .nav-item.completed {
+            color: #28a745;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            margin: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+        .page-title {
+            font-size: 36px;
+            color: #1f77b4;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            float: right;
+            background: #28a745;
+        }
+        .content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+        .content h2 {
+            color: #17a2b8;
+            margin: 30px 0 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .content h3 {
+            color: #333;
+            margin: 20px 0 10px;
+        }
+        .content li {
+            margin: 10px 0;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f77b4;
+        }
+        .metric-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #007bff, #17a2b8);
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .task-card {
+            background: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .task-title {
+            font-weight: bold;
+            color: #17a2b8;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        🤖 AI Data Analysis Team - Marimo Integration
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Navigation</h3>
+            <div class="nav-item completed">
+                ✓ 1. Project Setup
+            </div>
+            <div class="nav-item active">
+                → 2. Manager Planning
+            </div>
+            <div class="nav-item ">
+                 3. Data Understanding
+            </div>
+            <div class="nav-item ">
+                 4. Task Generation
+            </div>
+            <div class="nav-item ">
+                 5. Marimo Execution
+            </div>
+            <div class="nav-item ">
+                 6. Final Report
+            </div>
+            
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc;">
+                <h3>AI Team</h3>
+                <div style="color: #666; margin: 10px 0;">👔 Manager: Strategy</div>
+                <div style="color: #666; margin: 10px 0;">📊 Analyst: Data</div>
+                <div style="color: #666; margin: 10px 0;">🎯 Associate: Tasks</div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="page-title">
+                Manager Planning
+                <span class="status-badge">Complete</span>
+            </div>
+            <div class="content">
+                
+        <h2>Strategic Analysis Plan</h2>
+        
+        <h3>Executive Summary</h3>
+        <p>Comprehensive Q4 sales analysis to drive Q1 2025 strategy and identify growth opportunities.</p>
+        
+        <h3>Data Assessment Strategy</h3>
+        <ul>
+            <li>Profile data quality and completeness</li>
+            <li>Identify key metrics and KPIs</li>
+            <li>Map data relationships and dependencies</li>
+            <li>Assess data reliability and limitations</li>
+        </ul>
+        
+        <h3>Analysis Methodology</h3>
+        <ol>
+            <li><strong>Exploratory Data Analysis:</strong> Comprehensive overview of distributions and patterns</li>
+            <li><strong>Time Series Analysis:</strong> Identify trends, seasonality, and growth patterns</li>
+            <li><strong>Customer Segmentation:</strong> RFM analysis and behavioral clustering</li>
+            <li><strong>Product Performance:</strong> Pareto analysis and profitability assessment</li>
+            <li><strong>Regional Analysis:</strong> Geographic performance comparison</li>
+            <li><strong>Predictive Modeling:</strong> Q1 2025 revenue forecasting</li>
+        </ol>
+        
+        <h3>Expected Deliverables</h3>
+        <ul>
+            <li>Executive dashboard with key metrics</li>
+            <li>Customer segment profiles and recommendations</li>
+            <li>Product portfolio optimization plan</li>
+            <li>Q1 2025 revenue forecast with confidence intervals</li>
+            <li>Actionable recommendations for growth</li>
+        </ul>
+        
+        <h3>Success Metrics</h3>
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-value">&gt;85%</div>
+                <div class="metric-label">Forecast Accuracy</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">5+</div>
+                <div class="metric-label">Actionable Insights</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">3</div>
+                <div class="metric-label">Growth Opportunities</div>
+            </div>
+        </div>
+    
+            </div>
+        </div>
+    </div>
+</body>
+</html>
