@@ -1,0 +1,112 @@
+{
+  "test_date": "2025-09-02T05:17:23.825189",
+  "steps_verified": 4,
+  "project_data": {
+    "project_name": "Q4 Sales Analysis",
+    "client_name": "Marketing Team",
+    "project_type": "Strategic Analysis",
+    "deadline": "2025-09-30",
+    "business_objectives": "Analyze Q4 sales trends and identify growth opportunities",
+    "success_criteria": "Identify at least 3 actionable insights for revenue growth",
+    "data_description": "Sales transaction data from Q4 2024",
+    "created_at": "2025-09-02T05:17:23.825045"
+  },
+  "analysis_plan": {
+    "approach": "Comprehensive statistical and predictive analysis",
+    "key_metrics": [
+      "Revenue",
+      "Customer segments",
+      "Product performance",
+      "Regional trends"
+    ],
+    "deliverables": [
+      "Executive dashboard",
+      "Detailed report",
+      "Predictive models"
+    ],
+    "hypotheses": [
+      "Seasonal patterns affect sales",
+      "Customer segments have distinct behaviors",
+      "Product mix impacts profitability"
+    ],
+    "generated_at": "2025-09-02T05:17:23.825082"
+  },
+  "data_profile": {
+    "file_name": "sales_data_q4.csv",
+    "rows": 15000,
+    "columns": 12,
+    "quality_score": 94.5,
+    "numeric_columns": [
+      "revenue",
+      "quantity",
+      "discount",
+      "profit"
+    ],
+    "categorical_columns": [
+      "product",
+      "region",
+      "customer_segment"
+    ],
+    "missing_values": 87,
+    "duplicate_rows": 3,
+    "profiled_at": "2025-09-02T05:17:23.825098"
+  },
+  "analysis_tasks": [
+    {
+      "id": 1,
+      "name": "Exploratory Data Analysis",
+      "priority": "High",
+      "estimated_time": "2 hours",
+      "techniques": [
+        "Descriptive statistics",
+        "Visualization"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "name": "Hypothesis Testing",
+      "priority": "High",
+      "estimated_time": "3 hours",
+      "techniques": [
+        "Statistical tests",
+        "A/B testing"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "name": "Predictive Modeling",
+      "priority": "Medium",
+      "estimated_time": "4 hours",
+      "techniques": [
+        "Regression",
+        "Time series"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "Segmentation Analysis",
+      "priority": "Medium",
+      "estimated_time": "2 hours",
+      "techniques": [
+        "Clustering",
+        "RFM analysis"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "Executive Dashboard",
+      "priority": "High",
+      "estimated_time": "3 hours",
+      "techniques": [
+        "Data visualization",
+        "KPI design"
+      ],
+      "status": "pending"
+    }
+  ],
+  "status": "SUCCESS"
+}
