@@ -1,0 +1,45 @@
+{
+  "demo_date": "2025-09-02T06:19:50.330756",
+  "workflow_steps": 5,
+  "tasks_generated": 5,
+  "execution_status": "success",
+  "session_state": {
+    "project": {
+      "project_name": "Q4 Sales Analysis Demo",
+      "client_name": "Executive Team",
+      "project_type": "Strategic Analysis",
+      "business_objectives": "Analyze Q4 sales performance and identify growth opportunities",
+      "success_criteria": "Generate actionable insights with >80% accuracy",
+      "data_file": "test_data/valid/sales_small.csv"
+    },
+    "plan": {
+      "approach": "Comprehensive statistical and predictive analysis",
+      "key_metrics": [
+        "Revenue",
+        "Growth Rate",
+        "Customer Segments",
+        "Product Performance"
+      ],
+      "hypotheses": [
+        "Q4 shows seasonal patterns",
+        "Customer segments have distinct behaviors",
+        "Product mix affects profitability"
+      ],
+      "deliverables": [
+        "Executive Dashboard",
+        "Statistical Report",
+        "Predictive Models",
+        "Recommendations"
+      ]
+    },
+    "profile": {
+      "rows": 100,
+      "columns": 16,
+      "quality_score": 92.5,
+      "missing_values": 12,
+      "duplicates": 2,
+      "numeric_columns": 10,
+      "categorical_columns": 6
+    }
+  }
+}
