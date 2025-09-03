@@ -1,25 +1,41 @@
 {
   "objective": {
-    "objective": "Analyze customer churn patterns to identify key factors",
-    "analysis_type": "predictive",
-    "success_criteria": "Identify top 5 churn factors with 85% accuracy"
+    "objective": "Analyze customer churn patterns to reduce attrition by 20%",
+    "analysis_type": "exploratory",
+    "success_criteria": null,
+    "context": {},
+    "timestamp": "2025-09-03T14:09:03.060258"
   },
   "files": {
     "structured": [
       {
-        "name": "customer_data.csv",
-        "size": 1024000,
-        "rows": 10000,
-        "columns": 25
+        "id": "d16a8db8af",
+        "name": "sample_customer_data.csv",
+        "metadata": {
+          "name": "sample_customer_data.csv",
+          "category": "structured",
+          "size": 805,
+          "type": "csv",
+          "rows": 10,
+          "columns": 10,
+          "column_names": [
+            "customer_id",
+            "age",
+            "gender",
+            "tenure_months",
+            "monthly_charges",
+            "total_charges",
+            "payment_method",
+            "contract_type",
+            "internet_service",
+            "churn"
+          ]
+        }
       }
     ],
-    "unstructured": [],
-    "documentation": [
-      {
-        "name": "data_dictionary.pdf",
-        "size": 512000
-      }
-    ]
-  },
-  "timestamp": "2024-01-01 10:00:00"
+    "documents": [],
+    "images": [],
+    "sql": [],
+    "notebooks": []
+  }
 }

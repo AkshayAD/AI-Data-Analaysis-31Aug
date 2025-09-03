@@ -104,24 +104,12 @@ def main():
             page.render()
     
     elif st.session_state.current_stage == 2:
-        # Stage 2: Data Understanding
-        try:
-            from frontend.pages.stage_2 import DataUnderstandingPage
-            page = DataUnderstandingPage()
-            page.render()
-        except ImportError:
-            # Fallback - import the actual file
-            import importlib.util
-            spec = importlib.util.spec_from_file_location(
-                "data_understanding",
-                str(Path(__file__).parent / "frontend" / "pages" / "02_Data_Understanding.py")
-            )
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            
-            # Create page instance and render
-            page = module.DataUnderstandingPage()
-            page.render()
+        # Stage 2: Data Understanding (placeholder)
+        st.header("📊 Stage 2: Data Understanding")
+        st.info("This stage is coming soon...")
+        if st.button("← Back to Plan Generation"):
+            st.session_state.current_stage = 1
+            st.rerun()
     
     else:
         st.error(f"Unknown stage: {st.session_state.current_stage}")
