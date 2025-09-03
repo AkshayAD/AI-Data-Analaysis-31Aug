@@ -1,10 +1,25 @@
 {
-  "objective": "Analyze customer churn patterns to identify key factors and predict high-risk customers",
-  "analysis_type": "predictive",
-  "uploaded_files": [
-    "customer_data.csv",
-    "transactions.json"
-  ],
-  "data_dictionary": "data_dictionary.pdf",
+  "objective": {
+    "objective": "Analyze customer churn patterns to identify key factors",
+    "analysis_type": "predictive",
+    "success_criteria": "Identify top 5 churn factors with 85% accuracy"
+  },
+  "files": {
+    "structured": [
+      {
+        "name": "customer_data.csv",
+        "size": 1024000,
+        "rows": 10000,
+        "columns": 25
+      }
+    ],
+    "unstructured": [],
+    "documentation": [
+      {
+        "name": "data_dictionary.pdf",
+        "size": 512000
+      }
+    ]
+  },
   "timestamp": "2024-01-01 10:00:00"
 }
