@@ -10,7 +10,7 @@ import sys
 
 # Configure Streamlit - MUST be first Streamlit command
 st.set_page_config(
-    page_title="AI Analysis Platform - Input & Objectives",
+    page_title="AI Analysis Platform",
     page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded"
