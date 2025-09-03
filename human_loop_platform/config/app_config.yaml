@@ -1,0 +1,71 @@
+# Application Configuration
+app:
+  name: "Human-in-Loop AI Data Analysis Platform"
+  version: "1.0.0"
+  port: 8505
+  debug: true
+
+# File Upload Settings
+upload:
+  max_file_size_mb: 500
+  allowed_extensions:
+    structured: [csv, xlsx, xls, parquet, json]
+    documents: [pdf, docx, txt]
+    images: [png, jpg, jpeg, gif, bmp]
+    sql: [sql]
+    notebooks: [ipynb, py]
+  
+# AI Configuration
+ai:
+  gemini_api_key: ${GEMINI_API_KEY}
+  model: "gemini-pro"
+  temperature: 0.7
+  max_tokens: 4096
+  
+# AI Teammates
+ai_teammates:
+  manager:
+    role: "Generate and refine analysis plans"
+    capabilities:
+      - plan_generation
+      - methodology_selection
+      - resource_allocation
+  associate:
+    role: "Data understanding and preparation"
+    capabilities:
+      - data_profiling
+      - quality_assessment
+      - preprocessing_tasks
+  analyst:
+    role: "Execute analysis tasks"
+    capabilities:
+      - notebook_generation
+      - model_training
+      - visualization
+  reviewer:
+    role: "Validate and recommend"
+    capabilities:
+      - result_validation
+      - insight_generation
+      - report_creation
+
+# Marimo Settings
+marimo:
+  server_port: 2719
+  allow_remote: true
+  headless: false
+  notebook_timeout: 3600  # 1 hour
+
+# Database Configuration
+database:
+  url: "postgresql://user:pass@localhost:5432/analysis_db"
+  pool_size: 10
+  
+# Redis Configuration
+redis:
+  url: "redis://localhost:6379"
+  
+# Session Configuration
+session:
+  timeout_minutes: 60
+  max_file_retention_hours: 24
