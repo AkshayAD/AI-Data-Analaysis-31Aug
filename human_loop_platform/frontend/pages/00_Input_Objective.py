@@ -68,24 +68,33 @@ class InputObjectivePage:
             ("Review & Export", False)
         ]
         
+        # Create a styled progress bar
+        st.markdown("### 📍 Analysis Workflow Progress")
+        
         cols = st.columns(len(stages))
         for idx, (stage_name, is_active) in enumerate(stages):
             with cols[idx]:
                 if is_active:
                     st.markdown(f"""
-                    <div style='text-align: center; padding: 0.5rem;
+                    <div style='text-align: center; padding: 0.8rem;
                                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white; border-radius: 10px;'>
-                        <strong>{idx + 1}. {stage_name}</strong>
+                                color: white; border-radius: 10px; font-size: 0.85rem;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.2);'>
+                        <strong>Step {idx + 1}</strong><br/>
+                        <span style='font-size: 0.75rem;'>{stage_name}</span>
                     </div>
                     """, unsafe_allow_html=True)
                 else:
                     st.markdown(f"""
-                    <div style='text-align: center; padding: 0.5rem;
-                                background: #f0f0f0; color: #999; border-radius: 10px;'>
-                        {idx + 1}. {stage_name}
+                    <div style='text-align: center; padding: 0.8rem;
+                                background: #f8f9fa; color: #6c757d; border-radius: 10px;
+                                border: 1px solid #dee2e6; font-size: 0.85rem;'>
+                        Step {idx + 1}<br/>
+                        <span style='font-size: 0.75rem;'>{stage_name}</span>
                     </div>
                     """, unsafe_allow_html=True)
+        
+        st.markdown("---")
     
     def _render_objectives_tab(self):
         """Render objectives input tab"""
@@ -168,7 +177,9 @@ class InputObjectivePage:
                     # Save context for next stage
                     self._save_context()
                     st.success("✅ Context saved! Proceeding to Plan Generation...")
-                    # In real app, would navigate to next page
+                    
+                    # Navigate to Stage 1
+                    st.session_state.current_stage = 1
                     st.balloons()
                     
                     # Show next steps
@@ -179,6 +190,9 @@ class InputObjectivePage:
                     3. You can review, edit, and approve the plan
                     4. Chat with AI teammates for clarification
                     """)
+                    
+                    # Force navigation
+                    st.rerun()
     
     def _render_sidebar(self):
         """Render sidebar with help and tips"""

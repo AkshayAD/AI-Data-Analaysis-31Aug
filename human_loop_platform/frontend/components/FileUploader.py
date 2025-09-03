@@ -230,12 +230,24 @@ class MultiFormatFileUploader:
                         with col2:
                             # Display relevant metadata
                             meta = file_info['metadata']
-                            if 'rows' in meta:
-                                st.text(f"{meta['rows']} rows × {meta['columns']} cols")
+                            if 'rows' in meta and 'columns' in meta:
+                                st.text(f"{meta['rows']:,} rows × {meta['columns']} cols")
                             elif 'pages' in meta:
                                 st.text(f"{meta['pages']} pages")
                             elif 'dimensions' in meta:
                                 st.text(f"{meta['dimensions'][0]}×{meta['dimensions'][1]} px")
+                            elif 'statements' in meta:
+                                st.text(f"{meta['statements']} SQL statements")
+                            elif 'cells' in meta:
+                                st.text(f"{meta['cells']} notebook cells")
+                            elif 'lines' in meta:
+                                st.text(f"{meta['lines']} lines")
+                            elif 'text_length' in meta:
+                                st.text(f"{meta['text_length']:,} characters")
+                            else:
+                                # Display file size as fallback
+                                size_mb = meta.get('size', 0) / (1024 * 1024)
+                                st.text(f"{size_mb:.2f} MB")
                         with col3:
                             if st.button("🗑️", key=f"del_{file_info['id']}"):
                                 self._remove_file(file_info['id'])

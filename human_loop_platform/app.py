@@ -21,12 +21,22 @@ sys.path.append(str(Path(__file__).parent))
 
 # Import pages - using direct import since we'll run from pages directory
 import importlib.util
-spec = importlib.util.spec_from_file_location(
+
+# Stage 0: Input & Objectives
+spec_0 = importlib.util.spec_from_file_location(
     "input_objective", 
     str(Path(__file__).parent / "frontend" / "pages" / "00_Input_Objective.py")
 )
-input_objective_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(input_objective_module)
+input_objective_module = importlib.util.module_from_spec(spec_0)
+spec_0.loader.exec_module(input_objective_module)
+
+# Stage 1: Plan Generation
+spec_1 = importlib.util.spec_from_file_location(
+    "plan_generation",
+    str(Path(__file__).parent / "frontend" / "pages" / "01_Plan_Generation.py")
+)
+plan_generation_module = importlib.util.module_from_spec(spec_1)
+spec_1.loader.exec_module(plan_generation_module)
 
 def main():
     """Main application entry point"""
@@ -40,11 +50,20 @@ def main():
         # Stage 0: Input & Objectives
         input_objective_module.main()
     
+    elif st.session_state.current_stage == 1:
+        # Stage 1: Plan Generation
+        plan_generation_module.main()
+    
+    elif st.session_state.current_stage == 2:
+        # Stage 2: Data Understanding (placeholder)
+        st.info("Stage 2: Data Understanding - Coming Soon")
+        if st.button("← Back to Plan Generation"):
+            st.session_state.current_stage = 1
+            st.rerun()
+    
     # Additional stages will be added here
-    # elif st.session_state.current_stage == 1:
-    #     plan_generation_page()
-    # elif st.session_state.current_stage == 2:
-    #     data_understanding_page()
+    # elif st.session_state.current_stage == 3:
+    #     task_configuration_page()
     # etc.
 
 if __name__ == "__main__":
