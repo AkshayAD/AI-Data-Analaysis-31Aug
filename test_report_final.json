@@ -1,0 +1,124 @@
+{
+  "timestamp": "2025-09-04T11:04:07.548660",
+  "results": [
+    {
+      "stage": "Stage 0",
+      "tests": [
+        {
+          "name": "API Key Input",
+          "status": "PASS"
+        },
+        {
+          "name": "Model Selection",
+          "status": "FAIL",
+          "error": "No model selector found"
+        },
+        {
+          "name": "File Upload",
+          "status": "FAIL",
+          "error": "No file input found"
+        },
+        {
+          "name": "Business Objective",
+          "status": "FAIL",
+          "error": "No objective input found"
+        },
+        {
+          "name": "API Connection Test",
+          "status": "PASS"
+        },
+        {
+          "name": "Navigation to Stage 1",
+          "status": "FAIL",
+          "error": "No navigation button found"
+        }
+      ]
+    },
+    {
+      "stage": "Stage 1",
+      "tests": [
+        {
+          "name": "AI Plan Generation",
+          "status": "FAIL",
+          "error": "No generate button found"
+        },
+        {
+          "name": "Plan Editor",
+          "status": "PASS"
+        },
+        {
+          "name": "AI Chat",
+          "status": "FAIL",
+          "error": "No chat input found"
+        },
+        {
+          "name": "Save Plan",
+          "status": "PASS"
+        },
+        {
+          "name": "Navigation to Stage 2",
+          "status": "FAIL",
+          "error": "No navigation button found"
+        }
+      ]
+    },
+    {
+      "stage": "Stage 2",
+      "tests": [
+        {
+          "name": "Data Preview",
+          "status": "FAIL",
+          "error": "No data table found"
+        },
+        {
+          "name": "Statistical Summary",
+          "status": "PASS"
+        },
+        {
+          "name": "Data Quality",
+          "status": "PASS"
+        },
+        {
+          "name": "Visualizations",
+          "status": "PASS",
+          "count": 30
+        },
+        {
+          "name": "AI Insights",
+          "status": "SKIP",
+          "error": "No insights button found"
+        },
+        {
+          "name": "Export Data",
+          "status": "SKIP",
+          "error": "No export button found"
+        }
+      ]
+    },
+    {
+      "stage": "Navigation",
+      "tests": [
+        {
+          "name": "Navigate back to Stage 1",
+          "status": "FAIL",
+          "error": "No Stage 1 link"
+        },
+        {
+          "name": "Navigate back to Stage 0",
+          "status": "FAIL",
+          "error": "No Stage 0 link"
+        },
+        {
+          "name": "Sidebar Navigation",
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_pass": 8,
+    "total_fail": 10,
+    "total_skip": 2,
+    "success_rate": 44.44444444444444
+  }
+}

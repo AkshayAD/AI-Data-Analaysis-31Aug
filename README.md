@@ -1,10 +1,9 @@
-# 🤖 AI Data Analysis Platform
+# 🚀 AI Data Analysis Platform
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
-An intelligent data analysis platform with AI-powered insights, machine learning models, and interactive visualizations. **Deploy for free** on Streamlit Cloud in minutes!
+An intelligent data analysis platform with AI-powered insights using Google Gemini. **No authentication required** - analyze your data instantly!
 
 ## ✨ Features
 

@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-09-04T12:21:27.297683",
+  "url": "http://localhost:8503",
+  "results": [
+    {
+      "test": "Critical Error",
+      "status": "FAIL",
+      "error": "ElementHandle.fill: Timeout 30000ms exceeded.\nCall log:\n    - fill(\"AIzaSyAkmzQMVJ8lMcXBn4f4dku0KdyV6ojwri8\")\n  - attempting fill action\n    2 \u00d7 waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n    - waiting 20ms\n    2 \u00d7 waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n      - waiting 100ms\n    59 \u00d7 waiting for element to be visible, enabled and editable\n       - element is not visible\n     - retrying fill action\n       - waiting 500ms\n"
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "success_rate": 0.0
+  }
+}
