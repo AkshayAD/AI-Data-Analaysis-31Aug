@@ -71,7 +71,7 @@ def render_stage_0():
     # Import the actual Stage 0 module
     spec = importlib.util.spec_from_file_location(
         "input_objective", 
-        str(Path(__file__).parent / "frontend" / "pages" / "00_Input_Objective.py")
+        str(Path(__file__).parent / "frontend" / "pages" / "00_Input_Objective_v2.py")
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -86,7 +86,7 @@ def render_stage_1():
     # Import the actual Stage 1 module
     spec = importlib.util.spec_from_file_location(
         "plan_generation",
-        str(Path(__file__).parent / "frontend" / "pages" / "01_Plan_Generation.py")
+        str(Path(__file__).parent / "frontend" / "pages" / "01_Plan_Generation_v2.py")
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -96,19 +96,19 @@ def render_stage_1():
 
 def render_stage_2():
     """Render Stage 2: Data Understanding"""
-    st.header("📊 Stage 2: Data Understanding")
-    st.info("This stage is coming soon...")
+    import importlib.util
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("← Back to Plan Generation"):
-            st.session_state.current_stage = 1
-            st.rerun()
+    # Import the actual Stage 2 module
+    spec = importlib.util.spec_from_file_location(
+        "data_understanding",
+        str(Path(__file__).parent / "frontend" / "pages" / "02_Data_Understanding_v2.py")
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
     
-    with col2:
-        if st.button("Continue to Task Configuration →"):
-            st.session_state.current_stage = 3
-            st.rerun()
+    # Call the main function if it exists
+    if hasattr(module, 'main'):
+        module.main()
 
 if __name__ == "__main__":
     main()

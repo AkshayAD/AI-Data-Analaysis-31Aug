@@ -17,7 +17,7 @@ import hashlib
 sys.path.append(str(Path(__file__).parent.parent))
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from components.FileUploader import FileUploader
+from components.FileUploader import MultiFormatFileUploader as FileUploader
 from components.ObjectiveInput import ObjectiveInput
 
 class InputObjectivePage:
