@@ -182,12 +182,44 @@ async def test_complete_workflow():
                         results.append({"test": "Navigation to Stage 2", "status": "PASS"})
                     break
             
+            # Click on AI Insights tab first
+            print("   Clicking AI Insights tab...")
+            tab_clicked = False
+            
+            # Try to find and click the AI Insights tab
+            # Method 1: Look for elements with role="tab"
+            tabs = await main_frame.query_selector_all('[role="tab"]')
+            for tab in tabs:
+                text = await tab.text_content()
+                if text and ("AI Insights" in text or "💡" in text):
+                    await tab.click()
+                    await page.wait_for_timeout(2000)
+                    print("   ✅ AI Insights tab clicked")
+                    tab_clicked = True
+                    break
+            
+            # Method 2: If not found, try buttons that might be tabs
+            if not tab_clicked:
+                buttons = await main_frame.query_selector_all("button")
+                for btn in buttons:
+                    text = await btn.text_content()
+                    if text and ("AI Insights" in text or "💡" in text):
+                        await btn.click()
+                        await page.wait_for_timeout(2000)
+                        print("   ✅ AI Insights tab clicked (button)")
+                        tab_clicked = True
+                        break
+            
             # Generate insights
             print("   Testing data insights generation...")
             generate_buttons = await main_frame.query_selector_all("button")
+            button_found = False
+            
             for btn in generate_buttons:
                 text = await btn.text_content()
                 if text and "Generate" in text and "Insights" in text:
+                    button_found = True
+                    print(f"   ✅ Found Generate AI Insights button: '{text.strip()}'")
                     await btn.click()
                     await page.wait_for_timeout(10000)  # Wait for AI analysis
                     await page.screenshot(path=SCREENSHOT_DIR / "09_insights_generated.png", full_page=True)
@@ -200,6 +232,10 @@ async def test_complete_workflow():
                         print("   ❌ Insights generation failed")
                         results.append({"test": "Insights Generation", "status": "FAIL"})
                     break
+            
+            if not button_found:
+                print("   ❌ Generate AI Insights button not found")
+                results.append({"test": "Insights Generation", "status": "FAIL"})
             
             # Final screenshot
             await page.screenshot(path=SCREENSHOT_DIR / "10_test_complete.png", full_page=True)
