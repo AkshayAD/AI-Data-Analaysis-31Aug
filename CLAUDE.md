@@ -411,4 +411,277 @@ page.set_default_timeout(60000)
 
 ---
 
+## 🤖 RECURSIVE AUTOMATION SYSTEM
+
+### Overview
+This project now includes a professional-grade recursive development system that enables fully autonomous, iterative development using Claude Code. The system tracks progress, executes tests, captures screenshots, and continuously improves the application.
+
+### Core Components
+
+#### 1. PROJECT_STATE.yaml 📊
+Central state tracking file containing:
+- Current development phase and progress
+- Working/broken features status
+- Test results and coverage metrics
+- Performance benchmarks
+- Issue tracking with priorities
+- Next action recommendations
+
+#### 2. AUTOMATION_PROMPT.md 🔄
+Master recursive prompt template for Claude Code sessions:
+- Test-driven development workflow
+- Automated progress tracking
+- Screenshot validation
+- Continuous file updates
+- Self-generating next iterations
+
+#### 3. TODO_TRACKER.md 📋
+Prioritized task management system:
+- 24 tasks across 5 development phases
+- Priority levels (Critical, High, Medium, Low)
+- Dependencies and effort estimates
+- Success criteria and test requirements
+- Progress tracking and completion log
+
+#### 4. TEST_RESULTS.json 🧪
+Comprehensive test execution tracking:
+- Historical test results
+- Performance metrics
+- Screenshot inventory
+- Issue discovery log
+- Visual regression tracking
+
+#### 5. METRICS_DASHBOARD.md 📈
+Real-time progress visualization:
+- Development velocity metrics
+- Quality indicators (coverage, pass rates)
+- Performance benchmarks
+- Issue resolution tracking
+- Executive summary with success probability
+
+#### 6. test_harness.py 🤖
+Automated test execution and reporting:
+- Continuous validation system
+- Screenshot capture automation
+- Performance monitoring
+- File synchronization
+- Summary report generation
+
+### Using the Recursive System
+
+#### Quick Start
+```bash
+# Run automated test harness
+python3 test_harness.py
+
+# Check current status
+cat PROJECT_STATE.yaml | grep -A 10 "current_state"
+
+# View next priority
+cat TODO_TRACKER.md | grep -A 5 "IMMEDIATE NEXT TASK"
+
+# Execute recursive development
+# Copy contents of AUTOMATION_PROMPT.md and send to Claude Code
+```
+
+#### Recursive Development Workflow
+
+**Step 1**: Copy the entire content of `AUTOMATION_PROMPT.md`
+
+**Step 2**: Send to Claude Code - it will:
+- Read current state from tracking files
+- Execute highest priority task
+- Write tests first (TDD approach)
+- Implement feature to pass tests
+- Capture validation screenshots
+- Update all tracking files
+- Commit changes with proper message
+
+**Step 3**: Claude Code ends with "COPY THIS PROMPT AGAIN AND SEND TO CONTINUE"
+
+**Step 4**: Repeat Step 2 until all 24 tasks completed
+
+### Development Phases
+
+#### Phase 1: Critical Fixes (Days 1-2)
+- Fix Generate Insights button missing
+- Improve API status display
+- Add progress indicators
+- Enhance error handling
+- Environment variable management
+- Performance caching
+
+#### Phase 2: Orchestration Integration (Days 3-5)
+- Integrate LangGraph orchestrator
+- HITL approval workflows
+- WebSocket real-time updates
+- Risk-based escalation engine
+
+#### Phase 3: Enhanced UI (Days 6-8) 
+- Marimo notebook migration
+- Reactive component system
+- SQL support integration
+- AI-native features
+
+#### Phase 4: Testing Suite (Days 9-11)
+- Visual regression baselines
+- >90% test coverage
+- Performance benchmarking
+- Security testing
+
+#### Phase 5: Production Deployment (Days 12-14)
+- Docker containerization
+- CI/CD pipeline setup
+- Monitoring and alerting
+- Documentation completion
+
+### File Usage Patterns
+
+#### Before Each Session
+```bash
+# Check system health
+python3 test_harness.py
+
+# Review current status
+cat METRICS_DASHBOARD.md | head -20
+
+# Identify next task
+cat TODO_TRACKER.md | grep -A 10 "NEXT ACTION"
+```
+
+#### During Development
+- System automatically updates all tracking files
+- Screenshots captured for validation
+- Performance metrics collected
+- Issues logged with priorities
+
+#### After Each Session
+```bash
+# Verify updates
+git status
+git log --oneline -3
+
+# Check completion status
+cat PROJECT_STATE.yaml | grep -A 5 "development_phases"
+```
+
+### Success Metrics
+
+#### Quality Gates
+- Test coverage >90%
+- Pass rate 100% 
+- API response <5s
+- Page load <2s
+- Visual regression <5%
+
+#### Progress Tracking
+- 24 total tasks
+- 5 development phases
+- 54.5 estimated hours
+- 14 day timeline
+
+### Automation Features
+
+#### Self-Healing
+- Automatic app restart if needed
+- Test retry on transient failures
+- Screenshot comparison with baselines
+- Performance regression alerts
+
+#### Continuous Monitoring
+- Real-time progress tracking
+- Issue escalation based on priority
+- Performance benchmark comparison
+- Visual regression detection
+
+#### Documentation Sync
+- Automatic CLAUDE.md updates
+- Pattern discovery logging
+- Solution documentation
+- Learning capture
+
+### Emergency Procedures
+
+#### If Automation Fails
+1. Check `test_harness.log` for errors
+2. Manually run `python3 test_working_app_fixed.py`
+3. Review PROJECT_STATE.yaml for current status
+4. Fix critical issues before continuing automation
+
+#### If Tests Fail
+1. Review TEST_RESULTS.json for specific failures
+2. Check screenshot directory for visual evidence
+3. Address issues in priority order (Critical → High → Medium)
+4. Re-run test harness to validate fixes
+
+#### Rollback Procedure
+```bash
+# Check recent commits
+git log --oneline -5
+
+# Rollback if needed
+git reset --hard HEAD~1
+
+# Re-run validation
+python3 test_harness.py
+```
+
+### Advanced Features
+
+#### Visual Regression Testing
+- Baseline screenshot comparison
+- 5% tolerance threshold
+- Automatic baseline updates
+- Cross-browser validation
+
+#### Performance Monitoring
+- API response time tracking
+- Memory usage monitoring
+- CPU utilization alerts
+- Load testing integration
+
+#### AI-Assisted Development
+- Automated code generation
+- Test-driven development
+- Pattern recognition
+- Solution optimization
+
+### Best Practices
+
+#### Session Management
+- Always use AUTOMATION_PROMPT.md
+- Review metrics before starting
+- Complete phases in order
+- Validate changes with test harness
+
+#### Quality Assurance
+- Tests must pass before proceeding
+- Screenshots required for UI changes
+- Performance targets must be met
+- Documentation must stay current
+
+#### Issue Resolution
+- Critical issues block phase progression
+- High priority issues addressed same day
+- Medium issues addressed within sprint
+- Low priority issues addressed as time permits
+
+### Integration Points
+
+#### With Existing Systems
+- Streamlit app integration
+- Gemini API preservation
+- Playwright test compatibility
+- Git workflow automation
+
+#### Future Enhancements
+- LangGraph orchestrator integration
+- Marimo notebook migration
+- Production deployment automation
+- Advanced HITL workflows
+
+---
+
+**🚀 AUTOMATION READY**: The recursive development system is fully operational. Copy AUTOMATION_PROMPT.md to begin autonomous development.
+
 **Remember**: This is a living document. Update it with every significant learning or pattern discovered. The goal is to make future development sessions as productive as possible.
