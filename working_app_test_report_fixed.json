@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-09-07T02:08:08.853765",
+  "results": [
+    {
+      "test": "API Connection",
+      "status": "UNKNOWN"
+    },
+    {
+      "test": "File Upload",
+      "status": "PASS"
+    },
+    {
+      "test": "Business Objectives",
+      "status": "PASS"
+    },
+    {
+      "test": "Navigation to Stage 1",
+      "status": "PASS"
+    },
+    {
+      "test": "Plan Generation",
+      "status": "PASS"
+    },
+    {
+      "test": "Navigation to Stage 2",
+      "status": "PASS"
+    },
+    {
+      "test": "Critical Error",
+      "status": "FAIL",
+      "error": "ElementHandle.click: Timeout 30000ms exceeded.\nCall log:\n  - attempting click action\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    58 \u00d7 waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 5,
+    "failed": 1,
+    "unknown": 1
+  }
+}
