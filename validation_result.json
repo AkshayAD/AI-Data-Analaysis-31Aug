@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-09-07T03:55:42.725019",
+  "system_status": "degraded",
+  "issues": [
+    "Streamlit app not running on port 8503",
+    "Tests are failing - system needs attention"
+  ],
+  "files": {
+    "PROJECT_STATE.yaml": {
+      "exists": true,
+      "size": 5799,
+      "path": "/root/repo/PROJECT_STATE.yaml"
+    },
+    "AUTOMATION_PROMPT.md": {
+      "exists": true,
+      "size": 6818,
+      "path": "/root/repo/AUTOMATION_PROMPT.md"
+    },
+    "TODO_TRACKER.md": {
+      "exists": true,
+      "size": 12156,
+      "path": "/root/repo/TODO_TRACKER.md"
+    },
+    "TEST_RESULTS.json": {
+      "exists": true,
+      "size": 6479,
+      "path": "/root/repo/TEST_RESULTS.json"
+    },
+    "METRICS_DASHBOARD.md": {
+      "exists": true,
+      "size": 10814,
+      "path": "/root/repo/METRICS_DASHBOARD.md"
+    },
+    "CLAUDE.md": {
+      "exists": true,
+      "size": 18336,
+      "path": "/root/repo/CLAUDE.md"
+    },
+    "test_harness.py": {
+      "exists": true,
+      "size": 20189,
+      "path": "/root/repo/test_harness.py"
+    }
+  },
+  "app": {
+    "port_open": false,
+    "url": "http://localhost:8503",
+    "status": "not_running"
+  },
+  "screenshots": {
+    "total": 2,
+    "files": [
+      "01_app_loaded.png",
+      "99_error.png"
+    ]
+  },
+  "test": {
+    "status": "completed",
+    "success": false,
+    "execution_time": "0.1s",
+    "return_code": 1,
+    "stdout_lines": 1,
+    "stderr_lines": 5,
+    "has_screenshots": false,
+    "timestamp": "2025-09-07T03:55:42.878139"
+  },
+  "ready_for_automation": false
+}
