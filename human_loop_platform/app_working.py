@@ -38,6 +38,12 @@ def init_session_state():
         st.session_state.chat_history = []
     if 'data_insights' not in st.session_state:
         st.session_state.data_insights = ""
+    if 'api_status' not in st.session_state:
+        st.session_state.api_status = None  # None, 'connected', 'failed'
+    if 'api_status_message' not in st.session_state:
+        st.session_state.api_status_message = ""
+    if 'api_error_details' not in st.session_state:
+        st.session_state.api_error_details = ""
 
 def render_sidebar():
     """Render sidebar with navigation"""
@@ -65,13 +71,22 @@ def render_sidebar():
         # System Status
         st.divider()
         st.subheader("System Status")
-        if st.session_state.api_key:
-            st.success("✅ API Key Configured")
-        else:
-            st.warning("⚠️ API Key Missing")
         
+        # API Connection Status
+        if st.session_state.api_status == 'connected':
+            st.success("✅ API Connected")
+        elif st.session_state.api_status == 'failed':
+            st.error("❌ API Failed")
+        elif st.session_state.api_key:
+            st.info("ℹ️ API Not Tested")
+        else:
+            st.warning("⚠️ No API Key")
+        
+        # Data Upload Status
         if st.session_state.uploaded_data is not None:
+            df = st.session_state.uploaded_data
             st.success("✅ Data Uploaded")
+            st.caption(f"{len(df)} rows × {len(df.columns)} cols")
         else:
             st.warning("⚠️ No Data")
 
@@ -82,6 +97,18 @@ def render_stage_0():
     
     # API Configuration
     with st.expander("🔑 Gemini API Configuration", expanded=True):
+        # Display persistent connection status
+        if st.session_state.api_status == 'connected':
+            st.success(f"✅ Connected - {st.session_state.api_status_message}")
+        elif st.session_state.api_status == 'failed':
+            st.error(f"❌ Failed - {st.session_state.api_status_message}")
+            if st.session_state.api_error_details:
+                st.caption(f"Error details: {st.session_state.api_error_details}")
+        elif st.session_state.api_key:
+            st.info("ℹ️ API key entered but not tested")
+        else:
+            st.warning("⚠️ No API key configured")
+        
         col1, col2 = st.columns([3, 1])
         with col1:
             api_key = st.text_input(
@@ -96,15 +123,43 @@ def render_stage_0():
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("Test Connection", type="primary"):
                 if api_key:
-                    try:
-                        genai.configure(api_key=api_key)
-                        model = genai.GenerativeModel('gemini-pro')
-                        response = model.generate_content("Say 'Connected!'")
-                        st.success("✅ API Connected Successfully!")
-                    except Exception as e:
-                        st.error(f"❌ Connection failed: {str(e)}")
+                    with st.spinner("Testing connection..."):
+                        try:
+                            genai.configure(api_key=api_key)
+                            model = genai.GenerativeModel('gemini-pro')
+                            response = model.generate_content("Say 'Connected!'")
+                            
+                            # Update session state for persistence
+                            st.session_state.api_status = 'connected'
+                            st.session_state.api_status_message = "API Connected Successfully"
+                            st.session_state.api_error_details = ""
+                            
+                            # Force rerun to show updated status
+                            st.rerun()
+                            
+                        except Exception as e:
+                            # Update session state for persistence
+                            st.session_state.api_status = 'failed'
+                            st.session_state.api_status_message = "Connection failed"
+                            
+                            # Store detailed error for display
+                            error_msg = str(e)
+                            if "API_KEY_INVALID" in error_msg or "invalid" in error_msg.lower():
+                                st.session_state.api_error_details = "Invalid API key. Please check your key and try again."
+                            elif "quota" in error_msg.lower():
+                                st.session_state.api_error_details = "API quota exceeded. Please try again later."
+                            elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                                st.session_state.api_error_details = "Network error. Please check your internet connection."
+                            else:
+                                st.session_state.api_error_details = error_msg[:200]  # Limit error message length
+                            
+                            # Force rerun to show updated status
+                            st.rerun()
                 else:
-                    st.error("Please enter an API key")
+                    st.session_state.api_status = 'failed'
+                    st.session_state.api_status_message = "No API key provided"
+                    st.session_state.api_error_details = "Please enter an API key before testing the connection."
+                    st.rerun()
         
         # Model Selection
         model_choice = st.selectbox(
