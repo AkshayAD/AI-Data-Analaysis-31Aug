@@ -307,22 +307,26 @@ def render_stage_1():
         user_input = st.text_input("Ask a question about your analysis:", key="chat_input")
         
         if st.button("Send", type="primary") and user_input:
-            try:
-                genai.configure(api_key=st.session_state.api_key)
-                model = genai.GenerativeModel('gemini-pro')
-                
-                context = f"""
-                Data columns: {st.session_state.uploaded_data.columns.tolist()}
-                Objective: {st.session_state.business_objective}
-                Current plan: {st.session_state.generated_plan[:500]}
-                Question: {user_input}
-                """
-                
-                response = model.generate_content(context)
-                st.session_state.chat_history.append({"user": user_input, "ai": response.text})
-                
-            except Exception as e:
-                st.error(f"Chat error: {str(e)}")
+            with st.spinner("Processing your question..."):
+                try:
+                    genai.configure(api_key=st.session_state.api_key)
+                    model = genai.GenerativeModel('gemini-pro')
+                    
+                    context = f"""
+                    Data columns: {st.session_state.uploaded_data.columns.tolist()}
+                    Objective: {st.session_state.business_objective}
+                    Current plan: {st.session_state.generated_plan[:500]}
+                    Question: {user_input}
+                    """
+                    
+                    response = model.generate_content(context)
+                    st.session_state.chat_history.append({"user": user_input, "ai": response.text})
+                    
+                    # Force refresh to show new message
+                    st.rerun()
+                    
+                except Exception as e:
+                    st.error(f"Chat error: {str(e)}")
         
         # Display chat history
         with chat_container:
