@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f6;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+        }
+        .header {
+            background: #1f77b4;
+            color: white;
+            padding: 20px 50px;
+            font-size: 32px;
+            font-weight: bold;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            height: calc(100% - 100px);
+        }
+        .sidebar {
+            width: 350px;
+            background: #e8e8e8;
+            padding: 20px;
+        }
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .nav-item {
+            padding: 10px;
+            margin: 5px 0;
+            color: #666;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #1f77b4;
+            font-weight: bold;
+        }
+        .nav-item.completed {
+            color: #28a745;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            margin: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+        .page-title {
+            font-size: 36px;
+            color: #1f77b4;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            float: right;
+            background: #ffc107;
+        }
+        .content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+        .content h2 {
+            color: #17a2b8;
+            margin: 30px 0 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .content h3 {
+            color: #333;
+            margin: 20px 0 10px;
+        }
+        .content li {
+            margin: 10px 0;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f77b4;
+        }
+        .metric-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #007bff, #17a2b8);
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .task-card {
+            background: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .task-title {
+            font-weight: bold;
+            color: #17a2b8;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        🤖 AI Data Analysis Team - Marimo Integration
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Navigation</h3>
+            <div class="nav-item completed">
+                ✓ 1. Project Setup
+            </div>
+            <div class="nav-item completed">
+                ✓ 2. Manager Planning
+            </div>
+            <div class="nav-item completed">
+                ✓ 3. Data Understanding
+            </div>
+            <div class="nav-item active">
+                → 4. Task Generation
+            </div>
+            <div class="nav-item ">
+                 5. Marimo Execution
+            </div>
+            <div class="nav-item ">
+                 6. Final Report
+            </div>
+            
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc;">
+                <h3>AI Team</h3>
+                <div style="color: #666; margin: 10px 0;">👔 Manager: Strategy</div>
+                <div style="color: #666; margin: 10px 0;">📊 Analyst: Data</div>
+                <div style="color: #666; margin: 10px 0;">🎯 Associate: Tasks</div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="page-title">
+                Task Generation
+                <span class="status-badge">Ready</span>
+            </div>
+            <div class="content">
+                
+        <h2>Generated Analysis Tasks</h2>
+        
+        <div class="task-card">
+            <div class="task-title">📊 TASK 1: Exploratory Data Analysis</div>
+            <strong>Objective:</strong> Comprehensive data overview and quality assessment<br>
+            <strong>Method:</strong> Statistical analysis, distribution plots, correlation matrices<br>
+            <strong>Output:</strong> EDA report with visualizations and initial insights
+        </div>
+        
+        <div class="task-card">
+            <div class="task-title">📈 TASK 2: Sales Trend Analysis</div>
+            <strong>Objective:</strong> Identify temporal patterns and growth trends<br>
+            <strong>Method:</strong> Time series decomposition, moving averages, trend testing<br>
+            <strong>Output:</strong> Trend components, seasonality patterns, growth metrics
+        </div>
+        
+        <div class="task-card">
+            <div class="task-title">👥 TASK 3: Customer Segmentation</div>
+            <strong>Objective:</strong> Group customers by purchasing behavior<br>
+            <strong>Method:</strong> RFM analysis, K-means clustering, profile analysis<br>
+            <strong>Output:</strong> Customer segments with actionable profiles
+        </div>
+        
+        <div class="task-card">
+            <div class="task-title">📦 TASK 4: Product Performance Analysis</div>
+            <strong>Objective:</strong> Identify top/bottom performers and optimization opportunities<br>
+            <strong>Method:</strong> Pareto analysis, profitability metrics, cross-sell analysis<br>
+            <strong>Output:</strong> Product rankings and portfolio recommendations
+        </div>
+        
+        <div class="task-card">
+            <div class="task-title">🗺️ TASK 5: Regional Analysis</div>
+            <strong>Objective:</strong> Compare regional performance and identify opportunities<br>
+            <strong>Method:</strong> Comparative statistics, geographic visualization<br>
+            <strong>Output:</strong> Regional performance dashboard and growth strategies
+        </div>
+        
+        <div class="task-card">
+            <div class="task-title">🔮 TASK 6: Revenue Forecasting</div>
+            <strong>Objective:</strong> Predict Q1 2025 revenue with confidence intervals<br>
+            <strong>Method:</strong> ARIMA, Prophet, ensemble modeling<br>
+            <strong>Output:</strong> Q1 forecast with scenario analysis
+        </div>
+        
+        <div style="margin: 30px 0; padding: 20px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px;">
+            <strong>✓ All 6 tasks selected for automated execution</strong><br>
+            Execution Mode: <strong>Automated with Marimo</strong>
+        </div>
+    
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,41 +1,36 @@
+
 import marimo as mo
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
 
-app = mo.App()
+# Task: Perform sales analysis
+# Generated: 2025-09-01T05:51:09.396443
 
-@app.cell
-def cell_0():
-    mo.md("""# Analysis Notebook: test_notebook""")
-    return
+mo.md("## Sales Analysis")
 
-@app.cell
-def cell_1():
-    import pandas as pd
-    df = pd.read_csv('data/sample/sales_data.csv')
-    df.head()
-    return
 
-@app.cell
-def cell_2():
-    df.info()
-    return
+# Import libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-@app.cell
-def cell_3():
-    df.describe()
-    return
+# Load data
+df = pd.read_csv('sales_data.csv')
 
-@app.cell
-def cell_4():
-    import matplotlib.pyplot as plt
-    plt.figure(figsize=(10, 6))
-    plt.hist(df['revenue'], bins=30, edgecolor='black')
-    plt.xlabel('revenue')
-    plt.ylabel('Frequency')
-    plt.title('Histogram: revenue')
-    plt.show()
-    return
+# Basic statistics
+print(df.describe())
 
-if __name__ == '__main__':
-    app.run()
+# Create visualization
+plt.figure(figsize=(10, 6))
+plt.plot(df['date'], df['revenue'])
+plt.title('Revenue Over Time')
+plt.xlabel('Date')
+plt.ylabel('Revenue')
+plt.show()
+
+
+mo.md("### Results")
+mo.md("Analysis complete!")
