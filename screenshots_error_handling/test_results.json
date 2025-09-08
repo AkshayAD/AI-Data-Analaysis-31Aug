@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-09-08T01:08:09.746433",
+  "tests": [
+    {
+      "name": "API Connection - Invalid Key",
+      "passed": true,
+      "timestamp": "2025-09-08T01:08:28.565902"
+    },
+    {
+      "name": "API Connection - Empty Key",
+      "passed": true,
+      "timestamp": "2025-09-08T01:08:34.834239"
+    },
+    {
+      "name": "File Upload Error",
+      "passed": true,
+      "timestamp": "2025-09-08T01:08:40.002724"
+    },
+    {
+      "name": "Plan Generation Validation",
+      "passed": false,
+      "timestamp": "2025-09-08T01:08:45.010226"
+    },
+    {
+      "name": "Retry Logic Display",
+      "passed": false,
+      "timestamp": "2025-09-08T01:08:56.694419"
+    },
+    {
+      "name": "Chat Error Handling",
+      "passed": false,
+      "timestamp": "2025-09-08T01:09:01.726881"
+    },
+    {
+      "name": "AI Insights Error Handling",
+      "passed": false,
+      "timestamp": "2025-09-08T01:09:16.075582"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 3,
+    "failed": 4
+  }
+}

@@ -13,6 +13,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import io
+import time
+import traceback
+from typing import Optional, Dict, Any
 
 # Configure Streamlit
 st.set_page_config(
@@ -23,6 +26,127 @@ st.set_page_config(
 )
 
 # Initialize session state
+def categorize_error(error: Exception) -> Dict[str, Any]:
+    """Categorize error and provide user-friendly message"""
+    error_str = str(error).lower()
+    error_type = type(error).__name__
+    
+    # Categorize by error type and content
+    if "api_key_invalid" in error_str or "invalid api key" in error_str or "unauthorized" in error_str:
+        return {
+            "category": "authentication",
+            "message": "Invalid API key",
+            "details": "The API key provided is invalid or has been revoked. Please check your key and try again.",
+            "action": "Get a valid API key from https://makersuite.google.com/app/apikey",
+            "recoverable": False
+        }
+    elif "quota" in error_str or "rate limit" in error_str or "429" in error_str:
+        return {
+            "category": "rate_limit",
+            "message": "API quota exceeded",
+            "details": "You've exceeded the API rate limit. Please wait a moment before trying again.",
+            "action": "Wait 60 seconds before retrying, or upgrade your API plan",
+            "recoverable": True
+        }
+    elif "timeout" in error_str or "timed out" in error_str:
+        return {
+            "category": "timeout",
+            "message": "Request timed out",
+            "details": "The API request took too long to respond. This might be due to network issues or server load.",
+            "action": "Check your internet connection and try again",
+            "recoverable": True
+        }
+    elif "network" in error_str or "connection" in error_str or "unable to connect" in error_str:
+        return {
+            "category": "network",
+            "message": "Network error",
+            "details": "Unable to connect to the API. Please check your internet connection.",
+            "action": "Verify your internet connection is stable",
+            "recoverable": True
+        }
+    elif "content" in error_str and ("policy" in error_str or "safety" in error_str):
+        return {
+            "category": "content_policy",
+            "message": "Content policy violation",
+            "details": "The content may violate the API's usage policies.",
+            "action": "Review and modify your content to comply with usage policies",
+            "recoverable": False
+        }
+    elif "model" in error_str and "not found" in error_str:
+        return {
+            "category": "model",
+            "message": "Model not available",
+            "details": "The requested model is not available or doesn't exist.",
+            "action": "Use a different model like 'gemini-pro' or 'gemini-1.5-pro'",
+            "recoverable": False
+        }
+    else:
+        return {
+            "category": "unknown",
+            "message": "Unexpected error",
+            "details": f"An unexpected error occurred: {error_str[:200]}",
+            "action": "Try again or contact support if the issue persists",
+            "recoverable": True
+        }
+
+def retry_api_call(func, *args, max_retries: int = 3, delay: float = 1.0, **kwargs):
+    """Retry API calls with exponential backoff"""
+    last_error = None
+    
+    for attempt in range(max_retries):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            last_error = e
+            error_info = categorize_error(e)
+            
+            # Don't retry if not recoverable
+            if not error_info["recoverable"]:
+                raise e
+            
+            # Exponential backoff
+            if attempt < max_retries - 1:
+                wait_time = delay * (2 ** attempt)
+                time.sleep(wait_time)
+                continue
+            else:
+                raise e
+    
+    raise last_error
+
+def handle_api_error(error: Exception, operation: str = "API operation") -> None:
+    """Handle API errors with user-friendly messages"""
+    error_info = categorize_error(error)
+    
+    # Update session state
+    st.session_state.api_retry_count = st.session_state.get('api_retry_count', 0) + 1
+    st.session_state.last_error_time = datetime.now()
+    
+    # Display error to user
+    with st.container():
+        st.error(f"❌ {operation} failed: {error_info['message']}")
+        
+        with st.expander("📋 Error Details", expanded=False):
+            st.write(f"**What happened:** {error_info['details']}")
+            st.write(f"**What to do:** {error_info['action']}")
+            st.write(f"**Error category:** {error_info['category']}")
+            
+            if st.session_state.api_retry_count > 1:
+                st.warning(f"This error has occurred {st.session_state.api_retry_count} times")
+            
+            # Show technical details in debug mode
+            if st.checkbox("Show technical details", key=f"debug_{operation}"):
+                st.code(f"Error type: {type(error).__name__}\nFull error: {str(error)}\n\nTraceback:\n{traceback.format_exc()}")
+
+def safe_api_configure(api_key: str) -> bool:
+    """Safely configure the API with error handling"""
+    try:
+        genai.configure(api_key=api_key)
+        return True
+    except Exception as e:
+        handle_api_error(e, "API configuration")
+        return False
+
 def init_session_state():
     if 'current_stage' not in st.session_state:
         st.session_state.current_stage = 0
@@ -44,6 +168,10 @@ def init_session_state():
         st.session_state.api_status_message = ""
     if 'api_error_details' not in st.session_state:
         st.session_state.api_error_details = ""
+    if 'api_retry_count' not in st.session_state:
+        st.session_state.api_retry_count = 0
+    if 'last_error_time' not in st.session_state:
+        st.session_state.last_error_time = None
 
 def render_sidebar():
     """Render sidebar with navigation"""
@@ -125,9 +253,16 @@ def render_stage_0():
                 if api_key:
                     with st.spinner("Testing connection..."):
                         try:
-                            genai.configure(api_key=api_key)
-                            model = genai.GenerativeModel('gemini-pro')
-                            response = model.generate_content("Say 'Connected!'")
+                            # Reset retry count for new test
+                            st.session_state.api_retry_count = 0
+                            
+                            # Use retry logic for connection test
+                            def test_connection():
+                                genai.configure(api_key=api_key)
+                                model = genai.GenerativeModel('gemini-pro')
+                                return model.generate_content("Say 'Connected!'")
+                            
+                            response = retry_api_call(test_connection, max_retries=3, delay=1.0)
                             
                             # Update session state for persistence
                             st.session_state.api_status = 'connected'
@@ -138,20 +273,13 @@ def render_stage_0():
                             st.rerun()
                             
                         except Exception as e:
+                            # Categorize the error
+                            error_info = categorize_error(e)
+                            
                             # Update session state for persistence
                             st.session_state.api_status = 'failed'
-                            st.session_state.api_status_message = "Connection failed"
-                            
-                            # Store detailed error for display
-                            error_msg = str(e)
-                            if "API_KEY_INVALID" in error_msg or "invalid" in error_msg.lower():
-                                st.session_state.api_error_details = "Invalid API key. Please check your key and try again."
-                            elif "quota" in error_msg.lower():
-                                st.session_state.api_error_details = "API quota exceeded. Please try again later."
-                            elif "network" in error_msg.lower() or "connection" in error_msg.lower():
-                                st.session_state.api_error_details = "Network error. Please check your internet connection."
-                            else:
-                                st.session_state.api_error_details = error_msg[:200]  # Limit error message length
+                            st.session_state.api_status_message = error_info['message']
+                            st.session_state.api_error_details = f"{error_info['details']} | Action: {error_info['action']}"
                             
                             # Force rerun to show updated status
                             st.rerun()
@@ -179,11 +307,33 @@ def render_stage_0():
         
         if uploaded_file is not None:
             try:
+                # Attempt to read the file with appropriate method
                 if uploaded_file.name.endswith('.csv'):
-                    df = pd.read_csv(uploaded_file)
+                    # Try different encodings for CSV files
+                    try:
+                        df = pd.read_csv(uploaded_file)
+                    except UnicodeDecodeError:
+                        uploaded_file.seek(0)  # Reset file pointer
+                        df = pd.read_csv(uploaded_file, encoding='latin-1')
+                    except pd.errors.EmptyDataError:
+                        raise ValueError("The CSV file appears to be empty. Please upload a file with data.")
                 else:
-                    df = pd.read_excel(uploaded_file)
+                    # Handle Excel files
+                    try:
+                        df = pd.read_excel(uploaded_file)
+                    except Exception as excel_error:
+                        if "openpyxl" in str(excel_error).lower():
+                            raise ValueError("Excel file reading requires openpyxl. Please ensure the file is a valid Excel file.")
+                        raise excel_error
                 
+                # Validate the dataframe
+                if df.empty:
+                    raise ValueError("The uploaded file contains no data. Please upload a file with data.")
+                
+                if len(df.columns) == 0:
+                    raise ValueError("The uploaded file has no columns. Please check the file format.")
+                
+                # Store successfully loaded data
                 st.session_state.uploaded_data = df
                 st.success(f"✅ Uploaded: {uploaded_file.name} ({len(df)} rows, {len(df.columns)} columns)")
                 
@@ -191,19 +341,38 @@ def render_stage_0():
                 st.subheader("Data Preview")
                 st.dataframe(df.head(), use_container_width=True)
                 
-                # Basic stats
+                # Basic stats with error handling
                 col1, col2, col3, col4 = st.columns(4)
                 with col1:
                     st.metric("Rows", len(df))
                 with col2:
                     st.metric("Columns", len(df.columns))
                 with col3:
-                    st.metric("Numeric Cols", len(df.select_dtypes(include=[np.number]).columns))
+                    numeric_cols = len(df.select_dtypes(include=[np.number]).columns)
+                    st.metric("Numeric Cols", numeric_cols)
                 with col4:
-                    st.metric("Memory", f"{df.memory_usage(deep=True).sum() / 1024:.1f} KB")
+                    memory_kb = df.memory_usage(deep=True).sum() / 1024
+                    if memory_kb < 1024:
+                        st.metric("Memory", f"{memory_kb:.1f} KB")
+                    else:
+                        st.metric("Memory", f"{memory_kb/1024:.1f} MB")
                 
+            except ValueError as ve:
+                st.error(f"❌ File Error: {str(ve)}")
+                st.session_state.uploaded_data = None
             except Exception as e:
-                st.error(f"Error loading file: {str(e)}")
+                error_msg = str(e)
+                if "codec" in error_msg.lower() or "decode" in error_msg.lower():
+                    st.error("❌ File encoding error. Try saving the file as UTF-8 or use a different format.")
+                elif "permission" in error_msg.lower():
+                    st.error("❌ Permission denied. Please check file permissions.")
+                elif "memory" in error_msg.lower():
+                    st.error("❌ File too large. Please upload a smaller file or sample of your data.")
+                else:
+                    st.error(f"❌ Error loading file: {error_msg[:200]}")
+                    with st.expander("Technical Details"):
+                        st.code(traceback.format_exc())
+                st.session_state.uploaded_data = None
     
     # Business Objective
     with st.expander("🎯 Business Objective", expanded=True):
@@ -253,36 +422,59 @@ def render_stage_1():
         if st.button("🤖 Generate AI Plan", type="primary"):
             with st.spinner("Generating plan..."):
                 try:
-                    genai.configure(api_key=st.session_state.api_key)
-                    model = genai.GenerativeModel('gemini-pro')
+                    # Reset retry count
+                    st.session_state.api_retry_count = 0
                     
-                    # Create prompt with data info
-                    df = st.session_state.uploaded_data
-                    data_info = f"""
-                    Data Overview:
-                    - Rows: {len(df)}
-                    - Columns: {', '.join(df.columns.tolist())}
-                    - Data types: {df.dtypes.to_dict()}
-                    - Sample: {df.head(3).to_string()}
+                    # Validate prerequisites
+                    if not st.session_state.api_key:
+                        raise ValueError("No API key configured. Please add your API key in Stage 0.")
                     
-                    Business Objective: {st.session_state.business_objective}
-                    """
+                    if st.session_state.uploaded_data is None:
+                        raise ValueError("No data uploaded. Please upload data in Stage 0.")
                     
-                    prompt = f"""Create a detailed data analysis plan for the following:
-                    {data_info}
+                    if not st.session_state.business_objective:
+                        raise ValueError("No business objective specified. Please add your objective in Stage 0.")
                     
-                    Provide:
-                    1. Key analysis steps
-                    2. Recommended visualizations
-                    3. Statistical methods to apply
-                    4. Expected insights
-                    """
+                    # Create plan generation function for retry
+                    def generate_plan():
+                        genai.configure(api_key=st.session_state.api_key)
+                        model = genai.GenerativeModel('gemini-pro')
+                        
+                        # Create prompt with data info
+                        df = st.session_state.uploaded_data
+                        data_info = f"""
+                        Data Overview:
+                        - Rows: {len(df)}
+                        - Columns: {', '.join(df.columns.tolist())}
+                        - Data types: {df.dtypes.to_dict()}
+                        - Sample: {df.head(3).to_string()}
+                        
+                        Business Objective: {st.session_state.business_objective}
+                        """
+                        
+                        prompt = f"""Create a detailed data analysis plan for the following:
+                        {data_info}
+                        
+                        Provide:
+                        1. Key analysis steps
+                        2. Recommended visualizations
+                        3. Statistical methods to apply
+                        4. Expected insights
+                        """
+                        
+                        return model.generate_content(prompt)
                     
-                    response = model.generate_content(prompt)
+                    # Execute with retry logic
+                    response = retry_api_call(generate_plan, max_retries=3, delay=2.0)
                     st.session_state.generated_plan = response.text
+                    st.success("✅ Plan generated successfully!")
                     
+                except ValueError as ve:
+                    # Handle validation errors
+                    st.error(f"❌ Validation Error: {str(ve)}")
                 except Exception as e:
-                    st.error(f"Error generating plan: {str(e)}")
+                    # Handle API errors with detailed information
+                    handle_api_error(e, "Plan generation")
         
         # Plan Editor
         plan_text = st.text_area(
@@ -309,24 +501,41 @@ def render_stage_1():
         if st.button("Send", type="primary") and user_input:
             with st.spinner("Processing your question..."):
                 try:
-                    genai.configure(api_key=st.session_state.api_key)
-                    model = genai.GenerativeModel('gemini-pro')
+                    # Reset retry count
+                    st.session_state.api_retry_count = 0
                     
-                    context = f"""
-                    Data columns: {st.session_state.uploaded_data.columns.tolist()}
-                    Objective: {st.session_state.business_objective}
-                    Current plan: {st.session_state.generated_plan[:500]}
-                    Question: {user_input}
-                    """
+                    # Validate prerequisites
+                    if not st.session_state.api_key:
+                        raise ValueError("No API key configured. Please configure API in Stage 0.")
                     
-                    response = model.generate_content(context)
+                    if st.session_state.uploaded_data is None:
+                        raise ValueError("No data available for context. Please upload data first.")
+                    
+                    # Create chat function for retry
+                    def process_chat():
+                        genai.configure(api_key=st.session_state.api_key)
+                        model = genai.GenerativeModel('gemini-pro')
+                        
+                        context = f"""
+                        Data columns: {st.session_state.uploaded_data.columns.tolist()}
+                        Objective: {st.session_state.business_objective}
+                        Current plan: {st.session_state.generated_plan[:500] if st.session_state.generated_plan else 'No plan generated yet'}
+                        Question: {user_input}
+                        """
+                        
+                        return model.generate_content(context)
+                    
+                    # Execute with retry logic
+                    response = retry_api_call(process_chat, max_retries=3, delay=2.0)
                     st.session_state.chat_history.append({"user": user_input, "ai": response.text})
                     
                     # Force refresh to show new message
                     st.rerun()
                     
+                except ValueError as ve:
+                    st.error(f"❌ Validation Error: {str(ve)}")
                 except Exception as e:
-                    st.error(f"Chat error: {str(e)}")
+                    handle_api_error(e, "Chat processing")
         
         # Display chat history
         with chat_container:
@@ -499,29 +708,44 @@ def render_stage_2():
         if st.button("🤖 Generate AI Insights", type="primary"):
             with st.spinner("Analyzing data..."):
                 try:
-                    genai.configure(api_key=st.session_state.api_key)
-                    model = genai.GenerativeModel('gemini-pro')
+                    # Reset retry count
+                    st.session_state.api_retry_count = 0
                     
-                    # Prepare data summary
-                    data_summary = f"""
-                    Dataset Overview:
-                    - Shape: {df.shape}
-                    - Columns: {', '.join(df.columns.tolist())}
-                    - Numeric columns statistics:
-                    {df.describe().to_string()}
+                    # Validate prerequisites
+                    if not st.session_state.api_key:
+                        raise ValueError("No API key configured. Please configure API in Stage 0.")
                     
-                    Missing values: {df.isnull().sum().to_dict()}
+                    # Create insights function for retry
+                    def generate_insights():
+                        genai.configure(api_key=st.session_state.api_key)
+                        model = genai.GenerativeModel('gemini-pro')
+                        
+                        # Prepare data summary
+                        data_summary = f"""
+                        Dataset Overview:
+                        - Shape: {df.shape}
+                        - Columns: {', '.join(df.columns.tolist())}
+                        - Numeric columns statistics:
+                        {df.describe().to_string()}
+                        
+                        Missing values: {df.isnull().sum().to_dict()}
+                        
+                        Business Objective: {st.session_state.business_objective if st.session_state.business_objective else 'General data analysis'}
+                        
+                        Provide key insights, patterns, and recommendations based on this data.
+                        """
+                        
+                        return model.generate_content(data_summary)
                     
-                    Business Objective: {st.session_state.business_objective}
-                    
-                    Provide key insights, patterns, and recommendations based on this data.
-                    """
-                    
-                    response = model.generate_content(data_summary)
+                    # Execute with retry logic
+                    response = retry_api_call(generate_insights, max_retries=3, delay=2.0)
                     st.session_state.data_insights = response.text
+                    st.success("✅ Insights generated successfully!")
                     
+                except ValueError as ve:
+                    st.error(f"❌ Validation Error: {str(ve)}")
                 except Exception as e:
-                    st.error(f"Error generating insights: {str(e)}")
+                    handle_api_error(e, "AI insights generation")
         
         if st.session_state.data_insights:
             st.markdown(st.session_state.data_insights)
