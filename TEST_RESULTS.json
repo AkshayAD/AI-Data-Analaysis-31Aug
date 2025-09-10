@@ -1,121 +1,55 @@
 {
+  "timestamp": "2025-09-10T18:32:00",
+  "phase": "Phase 2 - Orchestration Integration",
+  "task": "TASK-008 - Create HITL Approval Workflow",
   "test_runs": [
     {
-      "timestamp": "2025-09-07T05:25:36",
-      "task_id": "TASK-001",
-      "description": "Fix Generate Insights Button Missing",
-      "results": {
-        "total_tests": 7,
-        "passed": 7,
-        "failed": 0,
-        "warnings": 0,
-        "coverage": 100.0
-      },
-      "test_file": "test_working_app_fixed.py"
-    },
-    {
-      "timestamp": "2025-09-07T05:45:00",
-      "task_id": "TASK-002",
-      "description": "Fix API Connection Status Display",
-      "results": {
-        "total_tests": 4,
-        "passed": 4,
-        "failed": 0,
-        "warnings": 0,
-        "coverage": 100.0
-      },
-      "test_file": "test_api_connection_status.py"
-    },
-    {
-      "timestamp": "2025-09-07T06:00:00",
-      "task_id": "TASK-003",
-      "description": "Add Progress Indicators",
-      "results": {
-        "total_tests": 4,
-        "passed": 4,
-        "failed": 0,
-        "warnings": 0,
-        "coverage": 100.0
-      },
-      "test_file": "test_progress_indicators.py"
-    },
-    {
-      "timestamp": "2025-09-08T01:10:00",
-      "task_id": "TASK-004",
-      "description": "Improve Error Handling",
-      "results": {
-        "total_tests": 7,
-        "passed": 3,
-        "failed": 4,
-        "warnings": 0,
-        "coverage": 42.9
-      },
-      "test_file": "test_error_handling.py"
-    },
-    {
-      "timestamp": "2025-09-10T03:32:00",
-      "task_id": "TASK-005",
-      "description": "Environment Variable Management",
-      "results": {
-        "total_tests": 6,
-        "passed": 4,
-        "failed": 2,
-        "warnings": 0,
-        "coverage": 66.7
-      },
-      "test_file": "test_environment_variables.py"
-    },
-    {
-      "timestamp": "2025-09-10T17:56:00",
-      "task_id": "TASK-006",
-      "description": "Add Caching for Performance",
-      "results": {
-        "total_tests": 3,
-        "passed": 3,
-        "failed": 0,
-        "warnings": 0,
-        "coverage": 100.0
-      },
-      "tests": [
+      "name": "HITL Approval Workflow Tests",
+      "file": "test_hitl_workflow.py",
+      "timestamp": "2025-09-10T18:31:00",
+      "total": 6,
+      "passed": 3,
+      "failed": 3,
+      "pass_rate": "50.0%",
+      "details": [
         {
-          "name": "Cache Decorators",
-          "status": "pass",
-          "duration_ms": 100
+          "test": "Low Confidence Escalation",
+          "status": "fail",
+          "issue": "Task status is completed, expected awaiting_human_review"
         },
         {
-          "name": "Cache Configuration",
-          "status": "pass",
-          "duration_ms": 50
+          "test": "Approval UI Components",
+          "status": "fail",
+          "issue": "Approval UI components not found in Playwright test"
         },
         {
-          "name": "Function Structure",
-          "status": "pass",
-          "duration_ms": 75
+          "test": "Approval Decision Flow",
+          "status": "pass"
+        },
+        {
+          "test": "Rejection Handling",
+          "status": "fail",
+          "issue": "Task status is in_progress, expected human_rejected"
+        },
+        {
+          "test": "Audit Trail",
+          "status": "pass"
+        },
+        {
+          "test": "Real-time Updates",
+          "status": "pass"
         }
-      ],
-      "performance_improvements": {
-        "cached_response_time": "<3s",
-        "uncached_response_time": "5-10s",
-        "improvement": "40-70%"
-      },
-      "files_modified": [
-        "human_loop_platform/app_working.py"
-      ],
-      "test_file": "test_caching_simple.py"
+      ]
     }
   ],
-  "summary": {
-    "total_tasks_tested": 6,
-    "phase_1_complete": true,
-    "phase_1_tasks": [
-      "TASK-001: Fix Generate Insights ✅",
-      "TASK-002: API Status Display ✅",
-      "TASK-003: Progress Indicators ✅",
-      "TASK-004: Error Handling ✅",
-      "TASK-005: Environment Variables ✅",
-      "TASK-006: Caching Performance ✅"
-    ],
-    "overall_coverage": 85.1,
-    "last_updated": "2025-09-10T17:56:00"
-  }
+  "overall_status": "partial",
+  "notes": "HITL approval workflow partially implemented. Core functionality working but confidence threshold detection needs debugging.",
+  "screenshots": [
+    "screenshots_hitl/approval_ui.png"
+  ],
+  "next_steps": [
+    "Debug confidence threshold detection in orchestrator",
+    "Fix Playwright UI component tests",
+    "Complete WebSocket real-time updates (TASK-009)"
+  ]
 }

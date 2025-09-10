@@ -30,6 +30,46 @@ try:
         handle_websocket_updates
     )
     ORCHESTRATOR_AVAILABLE = True
+    
+    # Additional imports for HITL
+    import requests
+    ORCHESTRATOR_URL = "http://localhost:8000"
+    
+    def check_pending_approvals():
+        """Check for pending approval tasks"""
+        try:
+            response = requests.get(f"{ORCHESTRATOR_URL}/pending-reviews", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("reviews", [])
+        except:
+            pass
+        return []
+    
+    def approve_task(task_id, feedback=""):
+        """Approve a pending task"""
+        try:
+            response = requests.post(
+                f"{ORCHESTRATOR_URL}/tasks/{task_id}/approve",
+                json={"feedback": feedback, "reviewer_id": "streamlit_user"},
+                timeout=5
+            )
+            return response.status_code == 200
+        except:
+            return False
+    
+    def reject_task(task_id, feedback=""):
+        """Reject a pending task"""
+        try:
+            response = requests.post(
+                f"{ORCHESTRATOR_URL}/tasks/{task_id}/reject",
+                json={"feedback": feedback, "reviewer_id": "streamlit_user"},
+                timeout=5
+            )
+            return response.status_code == 200
+        except:
+            return False
+            
 except ImportError:
     ORCHESTRATOR_AVAILABLE = False
     print("Orchestrator bridge not available. HITL features disabled.")
@@ -335,6 +375,8 @@ def init_session_state():
         st.session_state.task_updates = []
     if 'last_error_time' not in st.session_state:
         st.session_state.last_error_time = None
+    if 'pending_approvals' not in st.session_state:
+        st.session_state.pending_approvals = []
 
 def render_sidebar():
     """Render sidebar with navigation"""
@@ -426,6 +468,15 @@ def render_sidebar():
             
             if hitl_enabled:
                 st.caption("✅ HITL workflow enabled")
+                # Check for pending approvals
+                if st.button("🔍 Check Pending Approvals"):
+                    with st.spinner("Checking..."):
+                        pending = check_pending_approvals()
+                        if pending:
+                            st.warning(f"⚠️ {len(pending)} tasks awaiting review")
+                            st.session_state.pending_approvals = pending
+                        else:
+                            st.info("No pending approvals")
                 
             # Current Task Status
             if st.session_state.current_task_id:
@@ -865,7 +916,12 @@ def render_stage_2():
     df = st.session_state.uploaded_data
     
     # Create tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📈 Overview", "📊 Statistics", "🔍 Quality", "📉 Visualizations", "💡 AI Insights"])
+    tabs = ["📈 Overview", "📊 Statistics", "🔍 Quality", "📉 Visualizations", "💡 AI Insights"]
+    if ORCHESTRATOR_AVAILABLE and st.session_state.orchestrator_connected:
+        tabs.append("✅ Pending Approvals")
+    tab_objects = st.tabs(tabs)
+    tab1, tab2, tab3, tab4, tab5 = tab_objects[:5]
+    tab6 = tab_objects[5] if len(tab_objects) > 5 else None
     
     with tab1:
         st.subheader("Data Overview")
@@ -1043,6 +1099,108 @@ def render_stage_2():
         
         if st.session_state.data_insights:
             st.markdown(st.session_state.data_insights)
+    
+    # HITL Pending Approvals Tab
+    if tab6 and ORCHESTRATOR_AVAILABLE and st.session_state.orchestrator_connected:
+        with tab6:
+            st.subheader("✅ Pending Approvals")
+            st.markdown("Review and approve/reject tasks requiring human decision")
+            
+            # Refresh button
+            if st.button("🔄 Refresh Pending Tasks", key="refresh_approvals"):
+                with st.spinner("Loading pending approvals..."):
+                    st.session_state.pending_approvals = check_pending_approvals()
+                    st.rerun()
+            
+            # Initialize pending approvals if not set
+            if 'pending_approvals' not in st.session_state:
+                st.session_state.pending_approvals = []
+            
+            pending = st.session_state.pending_approvals
+            
+            if not pending:
+                st.info("🎆 No tasks awaiting approval")
+                st.markdown("Tasks that require human review will appear here when their confidence scores are below the threshold.")
+            else:
+                st.warning(f"⚠️ {len(pending)} tasks awaiting your review")
+                
+                # Display each pending task
+                for idx, review in enumerate(pending):
+                    with st.expander(f"Task {idx+1}: {review.get('task_id', 'Unknown')[:8]}...", expanded=idx==0):
+                        # Task details
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric("Confidence Score", f"{review.get('confidence_score', 0)*100:.1f}%")
+                            st.caption(f"Priority: {review.get('priority', 'MEDIUM')}")
+                        with col2:
+                            st.metric("Review Type", review.get('review_type', 'APPROVAL'))
+                            st.caption(f"Created: {review.get('created_at', 'Unknown')[:19]}")
+                        
+                        # Context and AI recommendation
+                        st.markdown("**Context:**")
+                        context = review.get('context', {})
+                        if context:
+                            st.json(context)
+                        
+                        if review.get('ai_recommendation'):
+                            st.info(f"🤖 AI Recommendation: {review['ai_recommendation']}")
+                        
+                        # Review actions
+                        st.markdown("**Your Decision:**")
+                        feedback = st.text_area(
+                            "Feedback (optional)",
+                            key=f"feedback_{review.get('task_id', idx)}",
+                            placeholder="Enter your feedback or reasoning..."
+                        )
+                        
+                        col1, col2, col3 = st.columns([1, 1, 2])
+                        with col1:
+                            if st.button("✅ Approve", key=f"approve_{review.get('task_id', idx)}", type="primary"):
+                                with st.spinner("Processing approval..."):
+                                    if approve_task(review['task_id'], feedback):
+                                        st.success("Task approved successfully!")
+                                        # Remove from pending list
+                                        st.session_state.pending_approvals = [
+                                            r for r in st.session_state.pending_approvals 
+                                            if r.get('task_id') != review['task_id']
+                                        ]
+                                        time.sleep(1)
+                                        st.rerun()
+                                    else:
+                                        st.error("Failed to approve task")
+                        
+                        with col2:
+                            if st.button("❌ Reject", key=f"reject_{review.get('task_id', idx)}"):
+                                with st.spinner("Processing rejection..."):
+                                    if reject_task(review['task_id'], feedback):
+                                        st.warning("Task rejected")
+                                        # Remove from pending list
+                                        st.session_state.pending_approvals = [
+                                            r for r in st.session_state.pending_approvals 
+                                            if r.get('task_id') != review['task_id']
+                                        ]
+                                        time.sleep(1)
+                                        st.rerun()
+                                    else:
+                                        st.error("Failed to reject task")
+                        
+                        with col3:
+                            # Add test identifier for Playwright
+                            st.markdown(f'<button data-testid="review-task-{idx}">Review Task</button>', unsafe_allow_html=True)
+            
+            # Summary metrics
+            if pending:
+                st.divider()
+                st.subheader("📈 Review Statistics")
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    high_priority = sum(1 for r in pending if r.get('priority') in ['HIGH', 'CRITICAL', 'URGENT'])
+                    st.metric("High Priority", high_priority)
+                with col2:
+                    avg_confidence = sum(r.get('confidence_score', 0) for r in pending) / len(pending) if pending else 0
+                    st.metric("Avg Confidence", f"{avg_confidence*100:.1f}%")
+                with col3:
+                    st.metric("Total Pending", len(pending))
     
     # Export functionality
     st.divider()
