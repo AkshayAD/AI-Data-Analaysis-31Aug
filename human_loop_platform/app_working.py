@@ -18,6 +18,10 @@ import traceback
 from typing import Optional, Dict, Any
 import os
 from dotenv import load_dotenv
+import hashlib
+
+# Configure caching - will be set after environment loads
+CACHE_TTL = 3600  # 1 hour default
 
 # Load environment variables
 def load_environment():
@@ -58,8 +62,88 @@ def get_app_config():
         'allowed_hosts': os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
     }
 
+# Cached API functions
+@st.cache_data(ttl=CACHE_TTL, show_spinner=False)
+def cached_generate_plan(objective: str, data_sample: str, api_key: str, model_name: str = 'gemini-pro') -> str:
+    """Generate analysis plan with caching based on objective and data"""
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name)
+    
+    prompt = f"""
+    Based on this business objective: {objective}
+    
+    And this data sample:
+    {data_sample}
+    
+    Create a detailed analysis plan including:
+    1. Data preparation steps
+    2. Analysis techniques to apply
+    3. Expected insights
+    4. Visualization recommendations
+    
+    Format as a clear, actionable plan.
+    """
+    
+    response = model.generate_content(prompt)
+    return response.text
+
+@st.cache_data(ttl=CACHE_TTL, show_spinner=False)
+def cached_chat_response(question: str, context: str, api_key: str, model_name: str = 'gemini-pro') -> str:
+    """Generate chat response with caching based on question and context"""
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name)
+    
+    full_context = f"""
+    Context: {context}
+    
+    Question: {question}
+    
+    Please provide a helpful and detailed answer.
+    """
+    
+    response = model.generate_content(full_context)
+    return response.text
+
+@st.cache_data(ttl=CACHE_TTL, show_spinner=False) 
+def cached_generate_insights(data_summary: str, objective: str, api_key: str, model_name: str = 'gemini-pro') -> str:
+    """Generate data insights with caching based on data and objective"""
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name)
+    
+    prompt = f"""
+    Analyze this data summary:
+    {data_summary}
+    
+    Business objective: {objective}
+    
+    Provide:
+    1. Key patterns and trends
+    2. Statistical insights
+    3. Actionable recommendations
+    4. Potential risks or concerns
+    
+    Format as clear bullet points.
+    """
+    
+    response = model.generate_content(prompt)
+    return response.text
+
+@st.cache_data(ttl=60, show_spinner=False)  # Short cache for connection test
+def cached_test_connection(api_key: str) -> bool:
+    """Test API connection with short-term caching"""
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content("Say 'Connected!'")
+        return True
+    except:
+        return False
+
 # Load environment variables
 load_environment()
+
+# Update cache TTL from environment
+CACHE_TTL = int(os.getenv('CACHE_TTL_SECONDS', '3600'))
 
 # Configure Streamlit
 st.set_page_config(
@@ -349,13 +433,14 @@ def render_stage_0():
                             # Reset retry count for new test
                             st.session_state.api_retry_count = 0
                             
-                            # Use retry logic for connection test
-                            def test_connection():
-                                genai.configure(api_key=api_key)
-                                model = genai.GenerativeModel('gemini-pro')
-                                return model.generate_content("Say 'Connected!'")
+                            # Use cached connection test with retry
+                            def test_connection_wrapper():
+                                success = cached_test_connection(api_key)
+                                if not success:
+                                    raise Exception("Connection test failed")
+                                return success
                             
-                            response = retry_api_call(test_connection, max_retries=3, delay=1.0)
+                            response = retry_api_call(test_connection_wrapper, max_retries=3, delay=1.0)
                             
                             # Update session state for persistence
                             st.session_state.api_status = 'connected'
@@ -528,38 +613,28 @@ def render_stage_1():
                     if not st.session_state.business_objective:
                         raise ValueError("No business objective specified. Please add your objective in Stage 0.")
                     
-                    # Create plan generation function for retry
-                    def generate_plan():
-                        genai.configure(api_key=st.session_state.api_key)
-                        model = genai.GenerativeModel('gemini-pro')
-                        
-                        # Create prompt with data info
-                        df = st.session_state.uploaded_data
-                        data_info = f"""
-                        Data Overview:
-                        - Rows: {len(df)}
-                        - Columns: {', '.join(df.columns.tolist())}
-                        - Data types: {df.dtypes.to_dict()}
-                        - Sample: {df.head(3).to_string()}
-                        
-                        Business Objective: {st.session_state.business_objective}
-                        """
-                        
-                        prompt = f"""Create a detailed data analysis plan for the following:
-                        {data_info}
-                        
-                        Provide:
-                        1. Key analysis steps
-                        2. Recommended visualizations
-                        3. Statistical methods to apply
-                        4. Expected insights
-                        """
-                        
-                        return model.generate_content(prompt)
+                    # Prepare data sample for caching
+                    df = st.session_state.uploaded_data
+                    data_sample = f"""
+                    Data Overview:
+                    - Rows: {len(df)}
+                    - Columns: {', '.join(df.columns.tolist())}
+                    - Data types: {df.dtypes.to_dict()}
+                    - Sample: {df.head(3).to_string()}
+                    """
                     
-                    # Execute with retry logic
-                    response = retry_api_call(generate_plan, max_retries=3, delay=2.0)
-                    st.session_state.generated_plan = response.text
+                    # Use cached function with retry for network issues
+                    def generate_plan_wrapper():
+                        return cached_generate_plan(
+                            objective=st.session_state.business_objective,
+                            data_sample=data_sample,
+                            api_key=st.session_state.api_key,
+                            model_name='gemini-pro'
+                        )
+                    
+                    # Execute with retry logic for network errors (cache handles API responses)
+                    result = retry_api_call(generate_plan_wrapper, max_retries=3, delay=2.0)
+                    st.session_state.generated_plan = result
                     st.success("✅ Plan generated successfully!")
                     
                 except ValueError as ve:
@@ -604,23 +679,25 @@ def render_stage_1():
                     if st.session_state.uploaded_data is None:
                         raise ValueError("No data available for context. Please upload data first.")
                     
-                    # Create chat function for retry
-                    def process_chat():
-                        genai.configure(api_key=st.session_state.api_key)
-                        model = genai.GenerativeModel('gemini-pro')
-                        
-                        context = f"""
-                        Data columns: {st.session_state.uploaded_data.columns.tolist()}
-                        Objective: {st.session_state.business_objective}
-                        Current plan: {st.session_state.generated_plan[:500] if st.session_state.generated_plan else 'No plan generated yet'}
-                        Question: {user_input}
-                        """
-                        
-                        return model.generate_content(context)
+                    # Prepare context for caching
+                    context = f"""
+                    Data columns: {st.session_state.uploaded_data.columns.tolist()}
+                    Objective: {st.session_state.business_objective}
+                    Current plan: {st.session_state.generated_plan[:500] if st.session_state.generated_plan else 'No plan generated yet'}
+                    """
                     
-                    # Execute with retry logic
-                    response = retry_api_call(process_chat, max_retries=3, delay=2.0)
-                    st.session_state.chat_history.append({"user": user_input, "ai": response.text})
+                    # Use cached function
+                    def process_chat_wrapper():
+                        return cached_chat_response(
+                            question=user_input,
+                            context=context,
+                            api_key=st.session_state.api_key,
+                            model_name='gemini-pro'
+                        )
+                    
+                    # Execute with retry logic for network errors
+                    response_text = retry_api_call(process_chat_wrapper, max_retries=3, delay=2.0)
+                    st.session_state.chat_history.append({"user": user_input, "ai": response_text})
                     
                     # Force refresh to show new message
                     st.rerun()
@@ -808,31 +885,31 @@ def render_stage_2():
                     if not st.session_state.api_key:
                         raise ValueError("No API key configured. Please configure API in Stage 0.")
                     
-                    # Create insights function for retry
-                    def generate_insights():
-                        genai.configure(api_key=st.session_state.api_key)
-                        model = genai.GenerativeModel('gemini-pro')
-                        
-                        # Prepare data summary
-                        data_summary = f"""
-                        Dataset Overview:
-                        - Shape: {df.shape}
-                        - Columns: {', '.join(df.columns.tolist())}
-                        - Numeric columns statistics:
-                        {df.describe().to_string()}
-                        
-                        Missing values: {df.isnull().sum().to_dict()}
-                        
-                        Business Objective: {st.session_state.business_objective if st.session_state.business_objective else 'General data analysis'}
-                        
-                        Provide key insights, patterns, and recommendations based on this data.
-                        """
-                        
-                        return model.generate_content(data_summary)
+                    # Prepare data summary for caching
+                    data_summary = f"""
+                    Dataset Overview:
+                    - Shape: {df.shape}
+                    - Columns: {', '.join(df.columns.tolist())}
+                    - Numeric columns statistics:
+                    {df.describe().to_string()}
                     
-                    # Execute with retry logic
-                    response = retry_api_call(generate_insights, max_retries=3, delay=2.0)
-                    st.session_state.data_insights = response.text
+                    Missing values: {df.isnull().sum().to_dict()}
+                    """
+                    
+                    objective = st.session_state.business_objective if st.session_state.business_objective else 'General data analysis'
+                    
+                    # Use cached function
+                    def generate_insights_wrapper():
+                        return cached_generate_insights(
+                            data_summary=data_summary,
+                            objective=objective,
+                            api_key=st.session_state.api_key,
+                            model_name='gemini-pro'
+                        )
+                    
+                    # Execute with retry logic for network errors
+                    result = retry_api_call(generate_insights_wrapper, max_retries=3, delay=2.0)
+                    st.session_state.data_insights = result
                     st.success("✅ Insights generated successfully!")
                     
                 except ValueError as ve:
