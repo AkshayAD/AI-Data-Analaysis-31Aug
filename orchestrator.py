@@ -19,8 +19,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.prebuilt import ToolExecutor, ToolInvocation
+# Use memory checkpoint for compatibility  
+from langgraph.checkpoint.memory import MemorySaver
 
 # Configure paths
 DB_PATH = Path("orchestrator.db")
@@ -454,11 +454,13 @@ class LangGraphOrchestrator:
     def __init__(self):
         self.db = DatabaseManager()
         self.nodes = WorkflowNodes(self.db)
+        
+        # Initialize checkpoint storage first
+        self.checkpointer = MemorySaver()  # Use memory saver for simplicity
+        
+        # Build workflow after checkpointer is ready
         self.workflow = self._build_workflow()
         self.active_workflows = {}
-        
-        # Initialize checkpoint storage
-        self.checkpointer = SqliteSaver.from_conn_string(str(CHECKPOINT_PATH))
     
     def _build_workflow(self) -> StateGraph:
         """Build the LangGraph workflow"""
@@ -508,8 +510,8 @@ class LangGraphOrchestrator:
         
         return workflow.compile(checkpointer=self.checkpointer)
     
-    async def execute_task(self, task: AnalysisTask) -> Dict[str, Any]:
-        """Execute a task through the workflow"""
+    async def execute_task(self, task: AnalysisTask):
+        """Execute a task through the workflow - yields updates"""
         # Initialize state
         initial_state = WorkflowState(
             task_id=task.task_id,
@@ -554,7 +556,7 @@ class LangGraphOrchestrator:
             task.human_feedback = final_state.values.get("human_feedback")
             self.db.save_task(task)
             
-            return final_state.values
+            yield final_state.values
             
         except Exception as e:
             # Handle workflow errors
@@ -621,6 +623,38 @@ async def root():
         "version": "1.0.0",
         "timestamp": datetime.now().isoformat()
     }
+
+@app.get("/health")
+async def health():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "version": "1.0.0"
+    }
+
+# Simpler task endpoints for compatibility
+@app.post("/tasks")
+async def submit_task_simple(task_data: Dict[str, Any]):
+    """Submit a new task (simplified endpoint)"""
+    task = AnalysisTask(**task_data)
+    
+    # Save task to database
+    orchestrator.db.save_task(task)
+    
+    # Start async processing  
+    asyncio.create_task(process_task_async(task))
+    
+    return {"task_id": task.task_id, "status": "accepted"}
+
+@app.get("/tasks/{task_id}")
+async def get_task_simple(task_id: str):
+    """Get task status (simplified endpoint)"""
+    task = orchestrator.db.get_task(task_id)
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    return task.dict()
 
 
 @app.post("/api/v1/tasks/submit")

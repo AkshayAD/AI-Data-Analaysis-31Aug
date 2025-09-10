@@ -20,6 +20,20 @@ import os
 from dotenv import load_dotenv
 import hashlib
 
+# Import orchestrator bridge (if available)
+try:
+    from orchestrator_bridge import (
+        get_bridge_instance,
+        connect_to_orchestrator,
+        submit_task,
+        get_task_status,
+        handle_websocket_updates
+    )
+    ORCHESTRATOR_AVAILABLE = True
+except ImportError:
+    ORCHESTRATOR_AVAILABLE = False
+    print("Orchestrator bridge not available. HITL features disabled.")
+
 # Configure caching - will be set after environment loads
 CACHE_TTL = 3600  # 1 hour default
 
@@ -307,6 +321,18 @@ def init_session_state():
         st.session_state.api_error_details = ""
     if 'api_retry_count' not in st.session_state:
         st.session_state.api_retry_count = 0
+    
+    # Orchestrator integration
+    if 'orchestrator_connected' not in st.session_state:
+        st.session_state.orchestrator_connected = False
+    if 'orchestrator_status' not in st.session_state:
+        st.session_state.orchestrator_status = "Disconnected"
+    if 'hitl_enabled' not in st.session_state:
+        st.session_state.hitl_enabled = False
+    if 'current_task_id' not in st.session_state:
+        st.session_state.current_task_id = None
+    if 'task_updates' not in st.session_state:
+        st.session_state.task_updates = []
     if 'last_error_time' not in st.session_state:
         st.session_state.last_error_time = None
 
@@ -359,6 +385,61 @@ def render_sidebar():
             st.caption(f"{len(df)} rows × {len(df.columns)} cols")
         else:
             st.warning("⚠️ No Data")
+        
+        # Orchestrator Status
+        if ORCHESTRATOR_AVAILABLE:
+            st.divider()
+            st.subheader("Orchestrator Status")
+            
+            # Add test attribute for UI tests
+            status_container = st.container()
+            with status_container:
+                if st.session_state.orchestrator_connected:
+                    st.success(f"✅ {st.session_state.orchestrator_status}")
+                    st.markdown('<div data-testid="orchestrator-status">Connected</div>', unsafe_allow_html=True)
+                else:
+                    st.warning(f"⚠️ {st.session_state.orchestrator_status}")
+                    st.markdown('<div data-testid="orchestrator-status">Disconnected</div>', unsafe_allow_html=True)
+                
+                # Connect button
+                if st.button("🔌 Connect to Orchestrator", use_container_width=True):
+                    with st.spinner("Connecting..."):
+                        if connect_to_orchestrator():
+                            st.session_state.orchestrator_connected = True
+                            st.session_state.orchestrator_status = "Connected"
+                            st.success("Connected!")
+                            st.rerun()
+                        else:
+                            st.session_state.orchestrator_connected = False
+                            st.session_state.orchestrator_status = "Connection Failed"
+                            st.error("Failed to connect")
+            
+            # HITL Workflow Toggle
+            st.divider()
+            hitl_enabled = st.checkbox(
+                "Enable HITL Workflow",
+                value=st.session_state.hitl_enabled,
+                key="hitl_checkbox",
+                help="Enable Human-in-the-Loop workflow for AI decisions"
+            )
+            st.session_state.hitl_enabled = hitl_enabled
+            
+            if hitl_enabled:
+                st.caption("✅ HITL workflow enabled")
+                
+            # Current Task Status
+            if st.session_state.current_task_id:
+                st.divider()
+                st.subheader("Current Task")
+                st.markdown(f'<div data-testid="task-id">{st.session_state.current_task_id}</div>', 
+                          unsafe_allow_html=True)
+                
+                # Task updates
+                if st.session_state.task_updates:
+                    with st.expander("Status Updates", expanded=False):
+                        updates_text = "\n".join(st.session_state.task_updates[-5:])
+                        st.markdown(f'<div data-testid="status-updates">{updates_text}</div>', 
+                                  unsafe_allow_html=True)
 
 def render_stage_0():
     """Stage 0: Input & Objectives"""
@@ -656,6 +737,49 @@ def render_stage_1():
         # Save button
         if st.button("💾 Save Plan"):
             st.success("✅ Plan saved successfully!")
+        
+        # Submit to Orchestrator button
+        if ORCHESTRATOR_AVAILABLE and st.session_state.orchestrator_connected:
+            st.divider()
+            if st.button("🚀 Submit to Orchestrator", type="primary", use_container_width=True):
+                with st.spinner("Submitting task to orchestrator..."):
+                    try:
+                        # Prepare task parameters
+                        df = st.session_state.uploaded_data
+                        task_params = {
+                            "objective": st.session_state.business_objective,
+                            "plan": st.session_state.generated_plan,
+                            "data_info": {
+                                "rows": len(df),
+                                "columns": list(df.columns),
+                                "types": {str(k): str(v) for k, v in df.dtypes.to_dict().items()}
+                            }
+                        }
+                        
+                        # Submit task
+                        task_id = submit_task(
+                            task_type="data_analysis",
+                            parameters=task_params,
+                            priority=2,
+                            confidence_threshold=0.7,
+                            require_human_review=st.session_state.hitl_enabled
+                        )
+                        
+                        if task_id:
+                            st.session_state.current_task_id = task_id
+                            st.session_state.task_updates = [f"Task {task_id} submitted"]
+                            st.success(f"✅ Task submitted! ID: {task_id}")
+                            
+                            # Register WebSocket handler
+                            def handle_update(update_data):
+                                st.session_state.task_updates.append(str(update_data))
+                            
+                            handle_websocket_updates(handle_update)
+                        else:
+                            st.error("Failed to submit task to orchestrator")
+                            
+                    except Exception as e:
+                        st.error(f"Error submitting task: {str(e)}")
     
     with col2:
         st.subheader("💬 AI Assistant")
