@@ -16,6 +16,50 @@ import io
 import time
 import traceback
 from typing import Optional, Dict, Any
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+def load_environment():
+    """Load environment variables from .env file"""
+    env_paths = [
+        Path(__file__).parent / ".env",  # Same directory as app
+        Path(__file__).parent.parent / ".env",  # Root directory
+        Path.cwd() / ".env"  # Current working directory
+    ]
+    
+    for env_path in env_paths:
+        if env_path.exists():
+            load_dotenv(env_path)
+            print(f"Loaded environment from: {env_path}")
+            break
+    else:
+        # Try loading from default location
+        load_dotenv()
+
+def get_api_key_from_env():
+    """Get API key from environment with fallback options"""
+    api_key = os.getenv('GEMINI_API_KEY')
+    
+    # Also check alternative environment variable names
+    if not api_key:
+        api_key = os.getenv('GOOGLE_API_KEY')
+    if not api_key:
+        api_key = os.getenv('AI_API_KEY')
+    
+    return api_key
+
+def get_app_config():
+    """Get application configuration from environment"""
+    return {
+        'debug': os.getenv('DEBUG', 'false').lower() == 'true',
+        'port': int(os.getenv('STREAMLIT_SERVER_PORT', 8503)),
+        'cache_ttl': int(os.getenv('CACHE_TTL_SECONDS', 3600)),
+        'allowed_hosts': os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    }
+
+# Load environment variables
+load_environment()
 
 # Configure Streamlit
 st.set_page_config(
@@ -150,8 +194,17 @@ def safe_api_configure(api_key: str) -> bool:
 def init_session_state():
     if 'current_stage' not in st.session_state:
         st.session_state.current_stage = 0
+    
+    # Initialize API key from environment or empty
     if 'api_key' not in st.session_state:
-        st.session_state.api_key = ""
+        env_api_key = get_api_key_from_env()
+        st.session_state.api_key = env_api_key if env_api_key else ""
+    
+    # Track if API key came from environment
+    if 'api_key_source' not in st.session_state:
+        env_api_key = get_api_key_from_env()
+        st.session_state.api_key_source = "environment" if env_api_key else "user_input"
+    
     if 'uploaded_data' not in st.session_state:
         st.session_state.uploaded_data = None
     if 'business_objective' not in st.session_state:
@@ -203,10 +256,15 @@ def render_sidebar():
         # API Connection Status
         if st.session_state.api_status == 'connected':
             st.success("✅ API Connected")
+            if st.session_state.api_key_source == "environment":
+                st.caption("🌍 From env var")
         elif st.session_state.api_status == 'failed':
             st.error("❌ API Failed")
         elif st.session_state.api_key:
-            st.info("ℹ️ API Not Tested")
+            if st.session_state.api_key_source == "environment":
+                st.info("🌍 API From Env (Not Tested)")
+            else:
+                st.info("ℹ️ API Not Tested")
         else:
             st.warning("⚠️ No API Key")
         
@@ -225,6 +283,11 @@ def render_stage_0():
     
     # API Configuration
     with st.expander("🔑 Gemini API Configuration", expanded=True):
+        # Display environment variable status
+        if st.session_state.api_key_source == "environment":
+            st.info("🌍 **API Key loaded from environment variable**")
+            st.caption("Key is securely loaded from GEMINI_API_KEY environment variable")
+        
         # Display persistent connection status
         if st.session_state.api_status == 'connected':
             st.success(f"✅ Connected - {st.session_state.api_status_message}")
@@ -233,19 +296,49 @@ def render_stage_0():
             if st.session_state.api_error_details:
                 st.caption(f"Error details: {st.session_state.api_error_details}")
         elif st.session_state.api_key:
-            st.info("ℹ️ API key entered but not tested")
+            if st.session_state.api_key_source == "environment":
+                st.info("ℹ️ Environment API key loaded but not tested")
+            else:
+                st.info("ℹ️ API key entered but not tested")
         else:
             st.warning("⚠️ No API key configured")
         
         col1, col2 = st.columns([3, 1])
         with col1:
-            api_key = st.text_input(
-                "Gemini API Key",
-                value=st.session_state.api_key,
-                type="password",
-                placeholder="Enter your Gemini API key"
-            )
-            st.session_state.api_key = api_key
+            # Show different UI based on source
+            if st.session_state.api_key_source == "environment":
+                # Show masked key with option to override
+                masked_key = "●●●●●●●●" + (st.session_state.api_key[-4:] if len(st.session_state.api_key) > 4 else "")
+                st.text_input(
+                    "Gemini API Key (from environment)",
+                    value=masked_key,
+                    type="password",
+                    disabled=True,
+                    help="API key is loaded from environment variable GEMINI_API_KEY"
+                )
+                
+                # Allow user to override
+                if st.checkbox("Override with manual key", key="override_env_key"):
+                    api_key = st.text_input(
+                        "Enter manual API key",
+                        value="",
+                        type="password",
+                        placeholder="Enter your Gemini API key to override environment"
+                    )
+                    if api_key:
+                        st.session_state.api_key = api_key
+                        st.session_state.api_key_source = "user_input"
+                        st.rerun()
+                else:
+                    api_key = st.session_state.api_key
+            else:
+                api_key = st.text_input(
+                    "Gemini API Key",
+                    value=st.session_state.api_key,
+                    type="password",
+                    placeholder="Enter your Gemini API key"
+                )
+                st.session_state.api_key = api_key
         
         with col2:
             st.markdown("<br>", unsafe_allow_html=True)

@@ -228,10 +228,10 @@
     }
   ],
   "summary": {
-    "total_runs": 3,
-    "tasks_completed": 3,
-    "current_pass_rate": 100.0,
+    "total_runs": 4,
+    "tasks_completed": 4,
+    "current_pass_rate": 83.3,
     "trend": "stable",
-    "next_task": "TASK-004"
+    "next_task": "TASK-006"
   }
 }
