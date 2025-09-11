@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-09-11T10:16:13.357126",
+  "checks": {
+    "python_version": true,
+    "required_files": true,
+    "service_streamlit": true,
+    "service_orchestrator": true,
+    "environment": true,
+    "dependencies": false,
+    "resources": true,
+    "tests": true,
+    "git": true
+  },
+  "health_score": 85.0,
+  "status": "unhealthy",
+  "issues": [
+    "Missing packages: google-generativeai"
+  ],
+  "recommendations": [
+    "Run: pip install google-generativeai",
+    "Commit or stash changes"
+  ]
+}

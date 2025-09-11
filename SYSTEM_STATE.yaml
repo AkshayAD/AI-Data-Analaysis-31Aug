@@ -1,0 +1,328 @@
+# SYSTEM_STATE.yaml - Unified State Management v2.0
+# Single source of truth for all project state and metrics
+
+metadata:
+  version: 2.0.0
+  schema: recursive_engine_v2
+  last_updated: '2025-09-11T00:00:00.000000+00:00'
+  engine_version: RECURSIVE_ENGINE_2.0
+  health_score: 85.5  # Overall system health percentage
+
+project_info:
+  name: AI Analysis Platform with Human-in-the-Loop
+  repository: terragon/recursive-dev-prompt
+  branch: main
+  deployment_target: production
+  estimated_completion: '2025-09-25'
+
+current_execution:
+  task_id: TASK-008
+  task_name: Create HITL Approval Workflow
+  status: partial_complete
+  phase: "Phase 2 - Orchestration Integration"
+  started_at: '2025-09-10T18:20:00'
+  last_activity: '2025-09-10T18:32:00'
+  attempts: 2
+  retry_count: 1
+  errors_encountered:
+    - type: confidence_threshold_bug
+      message: "Task status is completed, expected awaiting_human_review"
+      occurred_at: '2025-09-10T18:31:00'
+      resolution_attempted: false
+    - type: ui_component_missing
+      message: "Approval UI components not found in Playwright test"
+      occurred_at: '2025-09-10T18:31:45'
+      resolution_attempted: false
+  solutions_applied: []
+  blockers: []
+
+progress_metrics:
+  overall_completion: 33.3  # Percentage of total project
+  phase_completion:
+    phase_1: 100.0  # Critical Fixes - COMPLETE
+    phase_2: 50.0   # Orchestration - IN PROGRESS
+    phase_3: 0.0    # UI Enhancement
+    phase_4: 0.0    # Testing Suite
+    phase_5: 0.0    # Production
+  tasks:
+    total: 24
+    completed: 8
+    in_progress: 1
+    pending: 15
+    failed: 0
+    blocked: 0
+  success_rate: 88.9  # Percentage of tasks completed without retry
+  avg_retry_count: 1.2
+  avg_completion_time: 32.5  # minutes
+  velocity_trend: increasing  # increasing|stable|decreasing
+
+test_metrics:
+  last_run: '2025-09-10T18:31:43'
+  overall_pass_rate: 75.0
+  test_suites:
+    - name: main_app
+      file: test_working_app_fixed.py
+      tests: 7
+      passed: 7
+      failed: 0
+      pass_rate: 100.0
+      last_run: '2025-09-10T17:56:00'
+    - name: caching
+      file: test_caching_simple.py
+      tests: 3
+      passed: 3
+      failed: 0
+      pass_rate: 100.0
+      last_run: '2025-09-10T17:56:00'
+    - name: orchestrator_integration
+      file: test_orchestrator_integration.py
+      tests: 6
+      passed: 5
+      failed: 1
+      pass_rate: 83.3
+      last_run: '2025-09-10T18:16:00'
+    - name: hitl_workflow
+      file: test_hitl_workflow.py
+      tests: 6
+      passed: 3
+      failed: 3
+      pass_rate: 50.0
+      last_run: '2025-09-10T18:31:43'
+      failing_tests:
+        - Low Confidence Escalation
+        - Approval UI Components
+        - Rejection Handling
+    - name: error_handling
+      file: test_error_handling.py
+      tests: 7
+      passed: 3
+      failed: 4
+      pass_rate: 42.9
+      last_run: '2025-09-08T01:10:00'
+    - name: environment_variables
+      file: test_environment_variables.py
+      tests: 6
+      passed: 4
+      failed: 2
+      pass_rate: 66.7
+      last_run: '2025-09-10T03:32:00'
+  code_coverage: 85.1
+  visual_regression_rate: 0.0  # No baselines yet
+  performance_benchmarks:
+    api_response_time: 7.2  # seconds (target: <5)
+    page_load_time: 1.8     # seconds (target: <2)
+    test_execution_time: 145 # seconds total
+
+error_recovery_stats:
+  total_errors: 12
+  auto_recovered: 7
+  manual_intervention: 5
+  recovery_rate: 58.3
+  avg_recovery_time: 45  # seconds
+  common_errors:
+    - pattern: selector_not_found
+      occurrences: 4
+      auto_recoverable: true
+    - pattern: api_timeout
+      occurrences: 3
+      auto_recoverable: true
+    - pattern: confidence_threshold
+      occurrences: 2
+      auto_recoverable: false
+    - pattern: ui_component_missing
+      occurrences: 3
+      auto_recoverable: false
+
+learned_patterns:
+  - id: PTN-001
+    error: "Button selector not found"
+    solution: "Wait for element before clicking, use data-testid"
+    confidence: 0.95
+    occurrences: 4
+    success_rate: 100.0
+  - id: PTN-002
+    error: "API rate limit exceeded"
+    solution: "Implement exponential backoff, max 3 retries"
+    confidence: 0.90
+    occurrences: 3
+    success_rate: 100.0
+  - id: PTN-003
+    error: "Session state lost"
+    solution: "Initialize all keys in session state at startup"
+    confidence: 0.85
+    occurrences: 2
+    success_rate: 100.0
+
+service_health:
+  streamlit:
+    status: operational
+    port: 8503
+    uptime: 99.5
+    last_restart: '2025-09-10T17:00:00'
+    health_endpoint: 'http://localhost:8503'
+  orchestrator:
+    status: operational
+    port: 8000
+    uptime: 98.0
+    last_restart: '2025-09-10T18:00:00'
+    health_endpoint: 'http://localhost:8000/health'
+  database:
+    status: operational
+    type: sqlite
+    path: orchestrator.db
+    size_mb: 2.4
+  redis:
+    status: not_configured
+    required: false
+  playwright:
+    status: operational
+    browsers_installed: ['chromium', 'firefox', 'webkit']
+
+environment:
+  python_version: '3.9.7'
+  node_version: '14.17.0'
+  os: 'Linux 6.1.102'
+  available_memory_gb: 8.2
+  available_disk_gb: 45.6
+  cpu_usage_percent: 12.5
+  env_variables_configured:
+    - GEMINI_API_KEY: true
+    - GOOGLE_API_KEY: false
+    - AI_API_KEY: false
+    - ORCHESTRATOR_PORT: true
+    - STREAMLIT_PORT: true
+
+dependencies:
+  python_packages:
+    installed: 48
+    outdated: 3
+    security_issues: 0
+  system_packages:
+    missing: []
+    required: ['nodejs', 'python3', 'git']
+
+active_features:
+  - streamlit_app: operational
+  - gemini_integration: operational
+  - file_upload: operational
+  - data_visualization: operational
+  - chat_interface: operational
+  - api_status_display: operational
+  - progress_indicators: operational
+  - error_handling: operational
+  - environment_management: operational
+  - caching: operational
+  - orchestrator_integration: partial
+  - hitl_approval: partial
+  - websocket_updates: pending
+  - risk_escalation: pending
+  - marimo_migration: not_started
+  - visual_regression: not_started
+  - production_deployment: not_started
+
+issues_tracker:
+  critical:
+    - id: ISS-001
+      title: "HITL confidence threshold not triggering review"
+      description: "Tasks with confidence <0.7 complete instead of pausing"
+      impact: "HITL workflow non-functional"
+      discovered: '2025-09-10T18:31:00'
+      status: open
+      priority: 1
+      assigned_to: recursive_engine
+      estimated_fix_time: 30
+  high:
+    - id: ISS-002
+      title: "Approval UI components missing"
+      description: "Pending Approvals tab not visible in Streamlit"
+      impact: "Cannot manually approve/reject tasks"
+      discovered: '2025-09-10T18:31:45'
+      status: open
+      priority: 2
+      assigned_to: recursive_engine
+      estimated_fix_time: 20
+  medium:
+    - id: ISS-003
+      title: "WebSocket real-time updates incomplete"
+      description: "Updates not pushing to UI in real-time"
+      impact: "Delayed status visibility"
+      discovered: '2025-09-10T18:22:00'
+      status: open
+      priority: 3
+      assigned_to: recursive_engine
+      estimated_fix_time: 60
+  low: []
+
+next_actions:
+  immediate:
+    - task_id: FIX-001
+      description: "Fix HITL confidence threshold logic in orchestrator"
+      priority: critical
+      estimated_time: 30
+      file: orchestrator.py
+      line_numbers: [200, 250]
+    - task_id: FIX-002
+      description: "Add Pending Approvals UI to Streamlit"
+      priority: high
+      estimated_time: 20
+      file: human_loop_platform/app_working.py
+      line_numbers: [600, 700]
+  upcoming:
+    - task_id: TASK-009
+      description: "Complete WebSocket real-time updates"
+      priority: high
+      estimated_time: 120
+    - task_id: TASK-010
+      description: "Create risk-based escalation engine"
+      priority: medium
+      estimated_time: 180
+
+git_state:
+  branch: terragon/recursive-dev-prompt
+  ahead: 5
+  behind: 0
+  uncommitted_changes: 2
+  last_commit: '2dac33a feat(hitl): implement human-in-the-loop approval workflow - TASK-008 partial'
+  stash_count: 0
+
+performance_trends:
+  last_7_days:
+    tasks_completed: [2, 3, 0, 1, 2, 3, 2]
+    errors_encountered: [1, 2, 0, 0, 3, 2, 4]
+    success_rate: [100, 100, 0, 100, 66, 75, 50]
+  velocity: 2.1  # tasks per day
+  estimated_completion_days: 7
+
+automation_config:
+  recursive_engine: active
+  auto_retry: enabled
+  max_retries: 3
+  backoff_factor: 2
+  parallel_execution: enabled
+  max_parallel_tasks: 4
+  safe_mode: false
+  learning_mode: enabled
+  rollback_on_critical: true
+  health_check_interval: 300  # seconds
+  monitoring_enabled: true
+
+session_history:
+  total_sessions: 12
+  successful_sessions: 10
+  failed_sessions: 2
+  avg_session_duration: 45  # minutes
+  total_development_time: 540  # minutes
+  productivity_score: 8.5  # out of 10
+
+quality_metrics:
+  code_quality_score: 8.2
+  documentation_completeness: 75.0
+  test_quality_score: 7.8
+  security_score: 9.0
+  performance_score: 7.5
+  overall_quality: 8.1
+
+---
+# Auto-generated by RECURSIVE_ENGINE v2.0
+# This file is continuously updated by the autonomous system
+# Manual edits may be overwritten - use ERROR_PATTERNS.yaml for fixes

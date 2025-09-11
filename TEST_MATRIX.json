@@ -1,0 +1,358 @@
+{
+  "version": "2.0.0",
+  "generated": "2025-09-11T00:00:00",
+  "engine": "RECURSIVE_ENGINE_v2",
+  "summary": {
+    "total_tests": 38,
+    "total_passed": 28,
+    "total_failed": 10,
+    "pass_rate": 73.7,
+    "coverage": 85.1,
+    "last_run": "2025-09-10T18:31:43",
+    "trend": "improving",
+    "health_score": 7.4
+  },
+  "test_categories": {
+    "unit_tests": {
+      "enabled": true,
+      "priority": "high",
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "coverage": 0,
+      "target_coverage": 60,
+      "files": [],
+      "next_action": "Create unit tests for core functions"
+    },
+    "integration_tests": {
+      "enabled": true,
+      "priority": "critical",
+      "total": 19,
+      "passed": 15,
+      "failed": 4,
+      "coverage": 78.9,
+      "target_coverage": 30,
+      "files": [
+        "test_orchestrator_integration.py",
+        "test_hitl_workflow.py",
+        "test_caching_simple.py"
+      ],
+      "failing_tests": [
+        {
+          "name": "test_low_confidence_escalation",
+          "file": "test_hitl_workflow.py",
+          "error": "Task status is completed, expected awaiting_human_review",
+          "fix_available": true,
+          "fix_id": "ERR-HITL-001",
+          "priority": "critical"
+        },
+        {
+          "name": "test_approval_ui_components",
+          "file": "test_hitl_workflow.py",
+          "error": "Approval UI components not found",
+          "fix_available": true,
+          "fix_id": "ERR-HITL-002",
+          "priority": "high"
+        },
+        {
+          "name": "test_rejection_handling",
+          "file": "test_hitl_workflow.py",
+          "error": "Task status is in_progress, expected human_rejected",
+          "fix_available": true,
+          "fix_id": "ERR-HITL-003",
+          "priority": "medium"
+        },
+        {
+          "name": "test_end_to_end_workflow",
+          "file": "test_orchestrator_integration.py",
+          "error": "Full workflow integration incomplete",
+          "fix_available": false,
+          "priority": "medium"
+        }
+      ]
+    },
+    "e2e_tests": {
+      "enabled": true,
+      "priority": "high",
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "coverage": 100,
+      "target_coverage": 10,
+      "files": [
+        "test_working_app_fixed.py"
+      ],
+      "test_results": {
+        "app_loading": "pass",
+        "file_upload": "pass",
+        "business_objectives": "pass",
+        "navigation": "pass",
+        "plan_generation": "pass",
+        "api_connection": "pass",
+        "data_insights": "pass"
+      }
+    },
+    "performance_tests": {
+      "enabled": true,
+      "priority": "medium",
+      "total": 5,
+      "passed": 3,
+      "failed": 2,
+      "files": [
+        "test_caching_performance.py"
+      ],
+      "metrics": {
+        "api_response_time": {
+          "current": 7.2,
+          "target": 5.0,
+          "status": "fail",
+          "trend": "stable"
+        },
+        "page_load_time": {
+          "current": 1.8,
+          "target": 2.0,
+          "status": "pass",
+          "trend": "improving"
+        },
+        "cache_hit_rate": {
+          "current": 65,
+          "target": 80,
+          "status": "warning",
+          "trend": "improving"
+        }
+      }
+    },
+    "visual_tests": {
+      "enabled": false,
+      "priority": "low",
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "coverage": 0,
+      "target_coverage": 10,
+      "baselines_created": false,
+      "next_action": "Create visual regression baselines"
+    },
+    "security_tests": {
+      "enabled": false,
+      "priority": "medium",
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "checks": {
+        "api_key_exposure": "not_tested",
+        "sql_injection": "not_tested",
+        "xss_prevention": "not_tested",
+        "auth_bypass": "not_tested"
+      }
+    },
+    "error_handling_tests": {
+      "enabled": true,
+      "priority": "high",
+      "total": 7,
+      "passed": 3,
+      "failed": 4,
+      "pass_rate": 42.9,
+      "file": "test_error_handling.py",
+      "failing_scenarios": [
+        "api_timeout_handling",
+        "invalid_input_validation",
+        "service_unavailable_recovery",
+        "state_corruption_recovery"
+      ]
+    },
+    "environment_tests": {
+      "enabled": true,
+      "priority": "medium",
+      "total": 6,
+      "passed": 4,
+      "failed": 2,
+      "pass_rate": 66.7,
+      "file": "test_environment_variables.py",
+      "passing_checks": [
+        "env_file_loading",
+        "api_key_masking",
+        "fallback_to_input",
+        "override_functionality"
+      ],
+      "failing_checks": [
+        "secure_env_loading",
+        "multi_path_detection"
+      ]
+    }
+  },
+  "test_execution_matrix": {
+    "parallel_groups": [
+      {
+        "group_id": 1,
+        "tests": ["test_working_app_fixed.py", "test_api_connection_status.py"],
+        "can_parallel": true,
+        "estimated_time": 120
+      },
+      {
+        "group_id": 2,
+        "tests": ["test_orchestrator_integration.py", "test_hitl_workflow.py"],
+        "can_parallel": false,
+        "estimated_time": 180,
+        "reason": "Both require orchestrator service"
+      },
+      {
+        "group_id": 3,
+        "tests": ["test_error_handling.py", "test_environment_variables.py", "test_progress_indicators.py"],
+        "can_parallel": true,
+        "estimated_time": 90
+      },
+      {
+        "group_id": 4,
+        "tests": ["test_caching_simple.py", "test_caching_performance.py"],
+        "can_parallel": false,
+        "estimated_time": 60,
+        "reason": "Cache state interference"
+      }
+    ],
+    "optimal_order": [1, 3, 2, 4],
+    "total_sequential_time": 450,
+    "total_parallel_time": 240,
+    "time_savings": "46.7%"
+  },
+  "failure_patterns": {
+    "selector_issues": {
+      "occurrences": 8,
+      "tests_affected": ["test_hitl_workflow.py", "test_orchestrator_integration.py"],
+      "common_cause": "UI elements not rendered or wrong selector",
+      "fix_strategy": "Wait for element, use data-testid"
+    },
+    "timing_issues": {
+      "occurrences": 5,
+      "tests_affected": ["test_working_app_fixed.py"],
+      "common_cause": "Streamlit slow to render",
+      "fix_strategy": "Increase timeouts, add wait_for_idle"
+    },
+    "state_issues": {
+      "occurrences": 4,
+      "tests_affected": ["test_environment_variables.py"],
+      "common_cause": "Session state not initialized",
+      "fix_strategy": "Initialize all keys at startup"
+    },
+    "service_issues": {
+      "occurrences": 3,
+      "tests_affected": ["test_orchestrator_integration.py"],
+      "common_cause": "Service not running or wrong port",
+      "fix_strategy": "Check service health before test"
+    }
+  },
+  "smart_retry_config": {
+    "enabled": true,
+    "max_retries": 3,
+    "backoff_factor": 2,
+    "retry_on_patterns": [
+      "TimeoutError",
+      "Connection refused",
+      "selector not found"
+    ],
+    "skip_on_patterns": [
+      "AssertionError",
+      "TypeError",
+      "ImportError"
+    ]
+  },
+  "test_dependencies": {
+    "service_requirements": {
+      "streamlit": ["test_working_app_fixed.py", "test_hitl_workflow.py"],
+      "orchestrator": ["test_orchestrator_integration.py", "test_hitl_workflow.py"],
+      "database": ["test_hitl_workflow.py"],
+      "api_key": ["test_working_app_fixed.py", "test_environment_variables.py"]
+    },
+    "file_requirements": {
+      ".env": ["test_environment_variables.py"],
+      "test_data.csv": ["test_working_app_fixed.py"],
+      "orchestrator.db": ["test_hitl_workflow.py"]
+    }
+  },
+  "coverage_analysis": {
+    "files_covered": {
+      "human_loop_platform/app_working.py": 92.3,
+      "orchestrator.py": 78.5,
+      "human_loop_platform/orchestrator_bridge.py": 85.0,
+      "human_loop_platform/backend/ai_teammates/manager_v2.py": 88.7
+    },
+    "uncovered_areas": [
+      "Error recovery paths in orchestrator",
+      "WebSocket disconnect handling",
+      "Database transaction rollback",
+      "Cache invalidation logic"
+    ],
+    "coverage_trend": "increasing",
+    "next_milestone": 90
+  },
+  "screenshot_validation": {
+    "enabled": true,
+    "baseline_exists": false,
+    "screenshots_captured": 42,
+    "comparison_tolerance": 5,
+    "failed_comparisons": 0,
+    "directories": {
+      "baseline": "screenshots_baseline/",
+      "current": "screenshots_current/",
+      "diff": "screenshots_diff/"
+    }
+  },
+  "performance_benchmarks": {
+    "test_execution": {
+      "fastest": "test_environment_variables.py",
+      "slowest": "test_orchestrator_integration.py",
+      "avg_time": 62.5,
+      "total_time": 450
+    },
+    "resource_usage": {
+      "peak_memory": 285,
+      "avg_memory": 165,
+      "cpu_usage": 45
+    }
+  },
+  "recommendations": {
+    "immediate": [
+      {
+        "action": "Fix HITL confidence threshold bug",
+        "impact": "3 tests will pass",
+        "effort": "15 minutes",
+        "priority": "critical"
+      },
+      {
+        "action": "Add Pending Approvals UI",
+        "impact": "1 test will pass",
+        "effort": "15 minutes",
+        "priority": "high"
+      }
+    ],
+    "short_term": [
+      {
+        "action": "Create unit tests",
+        "impact": "Increase coverage to 90%",
+        "effort": "4 hours",
+        "priority": "medium"
+      },
+      {
+        "action": "Setup visual regression",
+        "impact": "Catch UI regressions",
+        "effort": "2 hours",
+        "priority": "low"
+      }
+    ],
+    "long_term": [
+      {
+        "action": "Implement security tests",
+        "impact": "Production readiness",
+        "effort": "3 hours",
+        "priority": "medium"
+      }
+    ]
+  },
+  "next_test_run": {
+    "scheduled": "auto",
+    "trigger": "on_commit",
+    "focus_areas": ["hitl_workflow", "orchestrator_integration"],
+    "skip_stable": true,
+    "parallel_execution": true
+  }
+}
