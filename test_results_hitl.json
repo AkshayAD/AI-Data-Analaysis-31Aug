@@ -1,41 +1,41 @@
 {
-  "timestamp": "2025-09-10T18:31:43.452646",
+  "timestamp": "2025-09-11T12:20:41.298537",
   "tests": [
     {
       "name": "Low Confidence Escalation",
       "status": "fail",
-      "timestamp": "2025-09-10T18:31:45.472162"
+      "timestamp": "2025-09-11T12:20:41.304655"
     },
     {
       "name": "Approval UI Components",
       "status": "fail",
-      "timestamp": "2025-09-10T18:31:50.402095"
+      "timestamp": "2025-09-11T12:20:46.585217"
     },
     {
       "name": "Approval Decision Flow",
-      "status": "pass",
-      "timestamp": "2025-09-10T18:31:52.424833"
+      "status": "fail",
+      "timestamp": "2025-09-11T12:20:46.587236"
     },
     {
       "name": "Rejection Handling",
       "status": "fail",
-      "timestamp": "2025-09-10T18:31:52.448961"
+      "timestamp": "2025-09-11T12:20:46.588826"
     },
     {
       "name": "Audit Trail",
-      "status": "pass",
-      "timestamp": "2025-09-10T18:31:52.482511"
+      "status": "fail",
+      "timestamp": "2025-09-11T12:20:46.590051"
     },
     {
       "name": "Real-time Updates",
-      "status": "pass",
-      "timestamp": "2025-09-10T18:31:57.501715"
+      "status": "fail",
+      "timestamp": "2025-09-11T12:20:48.598724"
     }
   ],
   "summary": {
     "total": 6,
-    "passed": 3,
-    "failed": 3,
-    "pass_rate": "50.0%"
+    "passed": 0,
+    "failed": 6,
+    "pass_rate": "0.0%"
   }
 }

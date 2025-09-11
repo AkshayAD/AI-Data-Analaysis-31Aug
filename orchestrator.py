@@ -658,8 +658,10 @@ class LangGraphOrchestrator:
             final_state = await self.workflow.aget_state(config)
             
             # Update task with final results
-            # Check if awaiting human review
-            if final_state.values.get("awaiting_human_review"):
+            # Check if awaiting human review (based on requires_human_review flag)
+            if final_state.values.get("requires_human_review") and not final_state.values.get("human_decision"):
+                task.status = TaskStatus.AWAITING_HUMAN_REVIEW
+            elif final_state.values.get("awaiting_human_review"):
                 task.status = TaskStatus.AWAITING_HUMAN_REVIEW
             elif final_state.values.get("human_decision") == "rejected":
                 task.status = TaskStatus.HUMAN_REJECTED
@@ -787,6 +789,9 @@ async def approve_task_simple(task_id: str, data: Dict[str, Any] = {}):
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     
+    # Check the previous status before updating
+    was_awaiting_review = task.status == TaskStatus.AWAITING_HUMAN_REVIEW
+    
     # Update task with approval
     task.status = TaskStatus.HUMAN_APPROVED
     task.human_feedback = data.get("feedback", "Approved")
@@ -801,6 +806,17 @@ async def approve_task_simple(task_id: str, data: Dict[str, Any] = {}):
         task.reviewer_id,
         {"feedback": task.human_feedback}
     )
+    
+    # Resume workflow if needed
+    if was_awaiting_review:
+        config = {"configurable": {"thread_id": task_id}}
+        state = await orchestrator.workflow.aget_state(config)
+        if state:
+            state.values["human_decision"] = "approved"
+            state.values["human_feedback"] = data.get("feedback", "Approved")
+            state.values["awaiting_human_review"] = False
+            # Continue workflow execution
+            asyncio.create_task(resume_workflow(task_id, state.values))
     
     return {"status": "approved", "task_id": task_id}
 

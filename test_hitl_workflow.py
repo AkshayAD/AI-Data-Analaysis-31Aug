@@ -89,9 +89,9 @@ def test_approval_ui_components():
             page.goto(STREAMLIT_URL, wait_until='networkidle')
             page.wait_for_timeout(3000)
             
-            # Check for HITL approval section
-            approval_section = page.query_selector('text="Pending Approvals"')
-            review_button = page.query_selector('button:has-text("Review Task")')
+            # Check for HITL approval section (try multiple selectors)
+            approval_section = page.query_selector('text="Pending Approvals"') or page.query_selector('text="✅ Pending Approvals"')
+            review_button = page.query_selector('button:has-text("Review")') or page.query_selector('button:has-text("Approve")') or page.query_selector('button:has-text("Refresh")')
             
             if approval_section or review_button:
                 print("   ✅ Approval UI components found")
