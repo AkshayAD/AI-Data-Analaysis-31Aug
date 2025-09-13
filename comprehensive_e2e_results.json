@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-09-13T01:33:42.053561",
+  "tests": {
+    "app_load": {
+      "status": "FAIL",
+      "error": "Unexpected title: \ud83d\ude80 AI Analysis Platform"
+    },
+    "api_config": {
+      "status": "PASS",
+      "details": "API configuration available and tested"
+    },
+    "file_upload": {
+      "status": "PASS",
+      "details": "File upload successful"
+    },
+    "navigation": {
+      "status": "PASS",
+      "details": "Navigation visible, stages found: 2"
+    },
+    "hitl_integration": {
+      "status": "PASS",
+      "details": "Orchestrator status section found"
+    }
+  },
+  "screenshots": [
+    "e2e_02_api_tested.png",
+    "e2e_03_file_uploaded.png",
+    "e2e_04_navigation.png",
+    "e2e_05_hitl_status.png"
+  ],
+  "errors": [],
+  "summary": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1
+  }
+}
