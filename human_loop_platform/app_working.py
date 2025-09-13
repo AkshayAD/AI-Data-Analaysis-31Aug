@@ -120,6 +120,56 @@ def get_app_config():
 @st.cache_data(ttl=CACHE_TTL, show_spinner=False)
 def cached_generate_plan(objective: str, data_sample: str, api_key: str, model_name: str = 'gemini-pro') -> str:
     """Generate analysis plan with caching based on objective and data"""
+    # Check if we're in mock mode
+    if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
+        # Return a mock analysis plan
+        return f"""## 📊 AI-Generated Analysis Plan (Mock Mode)
+
+### 📋 Executive Summary
+This analysis plan is generated in **mock mode** for testing purposes. Based on your objective and data sample, here's a comprehensive approach to analyze your e-commerce data.
+
+### 🎯 Analysis Objective
+{objective[:200]}...
+
+### 📈 Data Exploration Steps
+1. **Data Quality Assessment**
+   - Check for missing values and outliers
+   - Validate data types and formats
+   - Identify data completeness
+
+2. **Descriptive Statistics**
+   - Calculate mean, median, mode for numeric columns
+   - Analyze frequency distributions
+   - Examine data ranges and variances
+
+### 📊 Statistical Analysis Methods
+1. **Correlation Analysis** - Identify relationships between variables
+2. **Time Series Analysis** - Detect trends and seasonality
+3. **Segmentation Analysis** - Group customers by behavior
+4. **Regression Analysis** - Predict future outcomes
+
+### 🎨 Visualization Recommendations
+- **Bar Charts** for category comparisons
+- **Line Charts** for trend analysis
+- **Heatmaps** for correlation matrices
+- **Scatter Plots** for relationship analysis
+- **Box Plots** for distribution analysis
+
+### 💡 Key Insights to Extract
+1. Top performing product categories
+2. Customer purchase patterns
+3. Seasonal trends and peaks
+4. Price sensitivity analysis
+5. Geographic distribution patterns
+
+### ✅ Success Metrics
+- Increase in average order value
+- Customer retention rate improvement
+- Inventory optimization efficiency
+- Marketing ROI enhancement
+
+*Note: This is a mock plan generated for testing. Connect a real API key for actual AI-powered analysis.*"""
+    
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name)
     
@@ -144,6 +194,20 @@ def cached_generate_plan(objective: str, data_sample: str, api_key: str, model_n
 @st.cache_data(ttl=CACHE_TTL, show_spinner=False)
 def cached_chat_response(question: str, context: str, api_key: str, model_name: str = 'gemini-pro') -> str:
     """Generate chat response with caching based on question and context"""
+    # Check if we're in mock mode
+    if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
+        return f"""**Mock AI Response:**
+
+Based on your question about "{question[:50]}...", here's a simulated response:
+
+This is a mock response generated for testing purposes. In a real scenario, the AI would analyze your data context and provide specific insights about:
+- Data patterns and trends
+- Statistical relationships
+- Actionable recommendations
+- Potential areas of concern
+
+*Note: Connect a real API key for actual AI-powered responses.*"""
+    
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name)
     
@@ -161,6 +225,36 @@ def cached_chat_response(question: str, context: str, api_key: str, model_name: 
 @st.cache_data(ttl=CACHE_TTL, show_spinner=False) 
 def cached_generate_insights(data_summary: str, objective: str, api_key: str, model_name: str = 'gemini-pro') -> str:
     """Generate data insights with caching based on data and objective"""
+    # Check if we're in mock mode
+    if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
+        return """## 🔍 AI-Generated Insights (Mock Mode)
+
+### 📊 Key Patterns and Trends
+• **Sales Growth**: Consistent upward trend in Q1 with 15% month-over-month growth
+• **Category Performance**: Electronics showing highest revenue contribution (35%)
+• **Customer Behavior**: Peak purchasing hours between 7-9 PM
+• **Geographic Patterns**: Highest sales concentration in urban areas
+
+### 📈 Statistical Insights
+• **Average Order Value**: $75.50 with standard deviation of $23.20
+• **Customer Retention**: 68% repeat purchase rate within 30 days
+• **Conversion Rate**: 3.2% from browse to purchase
+• **Cart Abandonment**: 42% of initiated checkouts not completed
+
+### 💡 Actionable Recommendations
+• **Inventory Optimization**: Increase stock for top 20% performing products
+• **Marketing Focus**: Target evening hours for promotional campaigns
+• **Pricing Strategy**: Consider dynamic pricing for high-demand periods
+• **Customer Experience**: Simplify checkout process to reduce abandonment
+
+### ⚠️ Potential Risks or Concerns
+• **Seasonal Dependency**: 40% of revenue concentrated in Q4
+• **Single Category Risk**: Over-reliance on electronics category
+• **Geographic Limitation**: Limited market penetration in rural areas
+• **Price Sensitivity**: High correlation between discounts and sales volume
+
+*Note: This is mock analysis for testing. Connect a real API key for actual data insights.*"""
+    
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name)
     
@@ -183,15 +277,56 @@ def cached_generate_insights(data_summary: str, objective: str, api_key: str, mo
     return response.text
 
 @st.cache_data(ttl=60, show_spinner=False)  # Short cache for connection test
-def cached_test_connection(api_key: str) -> bool:
+def cached_test_connection(api_key: str) -> Dict[str, Any]:
     """Test API connection with short-term caching"""
+    # Check if we're in mock mode for testing
+    if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
+        return {
+            "success": True,
+            "mock": True,
+            "message": "Mock mode - API connection simulated"
+        }
+    
+    # Validate API key format
+    if not api_key or len(api_key) < 20:
+        return {
+            "success": False,
+            "error": "invalid_format",
+            "message": "API key format appears invalid"
+        }
+    
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content("Say 'Connected!'")
-        return True
-    except:
-        return False
+        return {
+            "success": True,
+            "mock": False,
+            "message": "API connection successful"
+        }
+    except Exception as e:
+        error_str = str(e)
+        if "API_KEY_INVALID" in error_str.upper() or "INVALID API KEY" in error_str.upper():
+            return {
+                "success": False,
+                "error": "invalid_key",
+                "message": "API key is invalid or revoked",
+                "details": error_str
+            }
+        elif "quota" in error_str.lower() or "rate" in error_str.lower():
+            return {
+                "success": False,
+                "error": "rate_limit",
+                "message": "API rate limit exceeded",
+                "details": error_str
+            }
+        else:
+            return {
+                "success": False,
+                "error": "network",
+                "message": "Network or connection error",
+                "details": error_str
+            }
 
 # Load environment variables
 load_environment()
@@ -567,16 +702,22 @@ def render_stage_0():
                             
                             # Use cached connection test with retry
                             def test_connection_wrapper():
-                                success = cached_test_connection(api_key)
-                                if not success:
-                                    raise Exception("Connection test failed")
-                                return success
+                                result = cached_test_connection(api_key)
+                                if not result["success"]:
+                                    error_msg = result.get("message", "Connection test failed")
+                                    if result.get("details"):
+                                        error_msg += f": {result['details']}"
+                                    raise Exception(error_msg)
+                                return result
                             
                             response = retry_api_call(test_connection_wrapper, max_retries=3, delay=1.0)
                             
                             # Update session state for persistence
                             st.session_state.api_status = 'connected'
-                            st.session_state.api_status_message = "API Connected Successfully"
+                            if response.get("mock"):
+                                st.session_state.api_status_message = "Mock Mode - Testing without real API"
+                            else:
+                                st.session_state.api_status_message = "API Connected Successfully"
                             st.session_state.api_error_details = ""
                             
                             # Force rerun to show updated status
@@ -776,18 +917,34 @@ def render_stage_1():
                     # Handle API errors with detailed information
                     handle_api_error(e, "Plan generation")
         
-        # Plan Editor
-        plan_text = st.text_area(
-            "Edit Analysis Plan",
-            value=st.session_state.generated_plan,
-            height=400,
-            help="You can edit the generated plan"
-        )
-        st.session_state.generated_plan = plan_text
-        
-        # Save button
-        if st.button("💾 Save Plan"):
-            st.success("✅ Plan saved successfully!")
+        # Plan Editor - only show if plan exists
+        if st.session_state.generated_plan:
+            plan_text = st.text_area(
+                "Edit Analysis Plan",
+                value=st.session_state.generated_plan,
+                height=400,
+                help="You can edit the generated plan"
+            )
+            st.session_state.generated_plan = plan_text
+            
+            # Save button
+            if st.button("💾 Save Plan"):
+                st.success("✅ Plan saved successfully!")
+        else:
+            # Show empty state with guidance
+            st.info("📝 **No plan generated yet**")
+            st.markdown("""
+            Click the **🤖 Generate AI Plan** button above to create an analysis plan based on your:
+            - Uploaded data
+            - Business objectives
+            - Analysis requirements
+            
+            The AI will generate a comprehensive plan including:
+            - Data exploration steps
+            - Statistical analysis methods
+            - Visualization recommendations
+            - Key insights to extract
+            """)
         
         # Submit to Orchestrator button
         if ORCHESTRATOR_AVAILABLE and st.session_state.orchestrator_connected:
