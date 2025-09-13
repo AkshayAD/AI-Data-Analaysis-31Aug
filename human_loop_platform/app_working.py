@@ -118,7 +118,7 @@ def get_app_config():
 
 # Cached API functions
 @st.cache_data(ttl=CACHE_TTL, show_spinner=False)
-def cached_generate_plan(objective: str, data_sample: str, api_key: str, model_name: str = 'gemini-pro') -> str:
+def cached_generate_plan(objective: str, data_sample: str, api_key: str, model_name: str = 'gemini-2.0-flash-exp') -> str:
     """Generate analysis plan with caching based on objective and data"""
     # Check if we're in mock mode
     if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
@@ -192,7 +192,7 @@ This analysis plan is generated in **mock mode** for testing purposes. Based on 
     return response.text
 
 @st.cache_data(ttl=CACHE_TTL, show_spinner=False)
-def cached_chat_response(question: str, context: str, api_key: str, model_name: str = 'gemini-pro') -> str:
+def cached_chat_response(question: str, context: str, api_key: str, model_name: str = 'gemini-2.0-flash-exp') -> str:
     """Generate chat response with caching based on question and context"""
     # Check if we're in mock mode
     if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
@@ -223,7 +223,7 @@ This is a mock response generated for testing purposes. In a real scenario, the 
     return response.text
 
 @st.cache_data(ttl=CACHE_TTL, show_spinner=False) 
-def cached_generate_insights(data_summary: str, objective: str, api_key: str, model_name: str = 'gemini-pro') -> str:
+def cached_generate_insights(data_summary: str, objective: str, api_key: str, model_name: str = 'gemini-2.0-flash-exp') -> str:
     """Generate data insights with caching based on data and objective"""
     # Check if we're in mock mode
     if api_key == "MOCK_API_KEY" or os.getenv('MOCK_MODE') == 'true':
@@ -297,7 +297,7 @@ def cached_test_connection(api_key: str) -> Dict[str, Any]:
     
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
         response = model.generate_content("Say 'Connected!'")
         return {
             "success": True,
@@ -394,7 +394,7 @@ def categorize_error(error: Exception) -> Dict[str, Any]:
             "category": "model",
             "message": "Model not available",
             "details": "The requested model is not available or doesn't exist.",
-            "action": "Use a different model like 'gemini-pro' or 'gemini-1.5-pro'",
+            "action": "Use a different model like 'gemini-2.0-flash-exp' or 'gemini-1.5-pro'",
             "recoverable": False
         }
     else:
@@ -743,7 +743,7 @@ def render_stage_0():
         # Model Selection
         model_choice = st.selectbox(
             "Select Model",
-            ["gemini-pro", "gemini-pro-vision", "gemini-1.5-pro"],
+            ["gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-pro"],
             index=0
         )
         st.session_state.model_choice = model_choice
@@ -902,7 +902,7 @@ def render_stage_1():
                             objective=st.session_state.business_objective,
                             data_sample=data_sample,
                             api_key=st.session_state.api_key,
-                            model_name='gemini-pro'
+                            model_name='gemini-2.0-flash-exp'
                         )
                     
                     # Execute with retry logic for network errors (cache handles API responses)
@@ -1024,7 +1024,7 @@ def render_stage_1():
                             question=user_input,
                             context=context,
                             api_key=st.session_state.api_key,
-                            model_name='gemini-pro'
+                            model_name='gemini-2.0-flash-exp'
                         )
                     
                     # Execute with retry logic for network errors
@@ -1241,7 +1241,7 @@ def render_stage_2():
                             data_summary=data_summary,
                             objective=objective,
                             api_key=st.session_state.api_key,
-                            model_name='gemini-pro'
+                            model_name='gemini-2.0-flash-exp'
                         )
                     
                     # Execute with retry logic for network errors

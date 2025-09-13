@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-09-13T02:17:38.350422",
+  "api_key": "Real Gemini API (AIzaSyAxVD-uip1rpZSVCOA0a_KAFQGlo5DzPw8)",
+  "model": "gemini-2.0-flash-exp",
+  "tests": {
+    "api_connection": {
+      "status": "PASS",
+      "time_seconds": 7.54,
+      "model": "gemini-2.0-flash-exp"
+    },
+    "data_upload": {
+      "status": "PASS",
+      "rows": 50,
+      "columns": 13
+    },
+    "objectives": {
+      "status": "PASS",
+      "length": 91
+    },
+    "plan_generation": {
+      "status": "PASS",
+      "time_seconds": 15.1,
+      "content_length": 8792,
+      "is_real_ai": true
+    },
+    "insights_generation": {
+      "status": "PASS",
+      "time_seconds": 10.07,
+      "has_real_content": true
+    },
+    "navigation": {
+      "status": "PASS",
+      "total_tabs": 5,
+      "stages_accessible": 3
+    }
+  },
+  "ai_content": {
+    "plan_preview": "## E-Commerce Analysis Plan: Strategic Insights & Competitive Advantage\n\n**Objective:** Comprehensive e-commerce analysis for strategic business insights and competitive advantage.\n\n**Data:**  50 rows..."
+  },
+  "performance": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "success_rate": "100.0%"
+  }
+}
