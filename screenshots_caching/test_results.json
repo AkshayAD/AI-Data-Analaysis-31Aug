@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-09-10T17:55:31.530393",
+  "tests": {
+    "cache_decorator_present": true,
+    "api_response_caching": false,
+    "cache_invalidation": false,
+    "performance_targets": false
+  },
+  "passed": 1,
+  "failed": 3,
+  "total": 4
+}

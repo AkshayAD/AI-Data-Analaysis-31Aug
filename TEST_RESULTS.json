@@ -1,198 +1,55 @@
 {
-  "metadata": {
-    "project": "AI Analysis Platform with HITL",
-    "version": "1.0.0-alpha",
-    "created": "2025-09-07T00:00:00Z",
-    "last_updated": "2025-09-07T00:00:00Z"
-  },
-  "test_suite_config": {
-    "primary_test_file": "test_working_app_fixed.py",
-    "screenshot_directory": "screenshots_working_app/",
-    "performance_targets": {
-      "api_response_time": "5s",
-      "page_load_time": "2s",
-      "visual_regression_threshold": "5%"
-    },
-    "coverage_targets": {
-      "unit_tests": 60,
-      "integration_tests": 30,
-      "e2e_tests": 10,
-      "overall_minimum": 90
-    }
-  },
-  "execution_history": [
+  "timestamp": "2025-09-10T18:32:00",
+  "phase": "Phase 2 - Orchestration Integration",
+  "task": "TASK-008 - Create HITL Approval Workflow",
+  "test_runs": [
     {
-      "execution_id": "baseline-001",
-      "timestamp": "2025-09-07T00:00:00Z",
-      "test_file": "test_working_app_fixed.py",
-      "environment": {
-        "app_url": "http://localhost:8503",
-        "app_file": "human_loop_platform/app_working.py",
-        "python_version": "3.9+",
-        "browser": "chromium"
-      },
-      "overall_result": {
-        "status": "partial_pass",
-        "total_tests": 7,
-        "passed": 5,
-        "failed": 2,
-        "skipped": 0,
-        "coverage_percentage": 71.4,
-        "execution_time": "45s"
-      },
-      "detailed_results": {
-        "test_app_loads": {
-          "status": "pass",
-          "duration": "3.2s",
-          "screenshot": "screenshots_working_app/app_load.png",
-          "description": "Streamlit app loads successfully",
-          "assertions_passed": 3,
-          "issues": []
-        },
-        "test_file_upload": {
-          "status": "pass",
-          "duration": "2.1s",
-          "screenshot": "screenshots_working_app/stage0_file_upload.png",
-          "description": "File upload functionality works",
-          "assertions_passed": 4,
-          "issues": []
-        },
-        "test_business_objectives": {
-          "status": "pass", 
-          "duration": "1.8s",
-          "screenshot": "screenshots_working_app/stage1_objectives.png",
-          "description": "Business objectives input functional",
-          "assertions_passed": 2,
-          "issues": []
-        },
-        "test_navigation_stages": {
-          "status": "pass",
-          "duration": "4.5s",
-          "screenshot": "screenshots_working_app/navigation_complete.png",
-          "description": "Navigation between stages 0, 1, 2 working",
-          "assertions_passed": 6,
-          "issues": []
-        },
-        "test_plan_generation": {
-          "status": "pass",
-          "duration": "8.7s",
-          "screenshot": "screenshots_working_app/stage1_plan_generated.png",
-          "description": "AI plan generation with Gemini API",
-          "assertions_passed": 3,
-          "performance": {
-            "api_response_time": "7.2s",
-            "meets_target": false,
-            "target": "5s"
-          },
-          "issues": [
-            "API response time exceeds 5s target"
-          ]
-        },
-        "test_api_connection": {
-          "status": "warning",
-          "duration": "2.3s", 
-          "screenshot": "screenshots_working_app/stage0_api_test.png",
-          "description": "API connection test functionality",
-          "assertions_passed": 1,
-          "issues": [
-            "Status display unclear - needs better success/failure indication"
-          ]
-        },
-        "test_data_insights_generation": {
+      "name": "HITL Approval Workflow Tests",
+      "file": "test_hitl_workflow.py",
+      "timestamp": "2025-09-10T18:31:00",
+      "total": 6,
+      "passed": 3,
+      "failed": 3,
+      "pass_rate": "50.0%",
+      "details": [
+        {
+          "test": "Low Confidence Escalation",
           "status": "fail",
-          "duration": "0.8s",
-          "screenshot": "screenshots_working_app/stage2_missing_button.png",
-          "description": "Data insights generation in Stage 2",
-          "assertions_passed": 0,
-          "assertions_failed": 1,
-          "error": "Generate Insights button not found",
-          "issues": [
-            "Missing 'Generate AI Insights' button in Stage 2",
-            "Button should be in AI Insights tab around line 260 of app_working.py"
-          ]
-        }
-      },
-      "visual_regression": {
-        "enabled": false,
-        "baseline_directory": "screenshots_baseline/",
-        "current_directory": "screenshots_working_app/",
-        "comparison_results": []
-      },
-      "performance_metrics": {
-        "average_page_load": "1.8s",
-        "meets_target": true,
-        "target": "2s",
-        "api_response_times": {
-          "plan_generation": "7.2s",
-          "meets_target": false,
-          "target": "5s"
-        },
-        "memory_usage": "85MB",
-        "cpu_usage": "12%"
-      },
-      "issues_discovered": [
-        {
-          "id": "ISS-001",
-          "priority": "critical",
-          "title": "Generate Insights Button Missing",
-          "description": "Stage 2 lacks Generate AI Insights button in AI Insights tab",
-          "file": "human_loop_platform/app_working.py",
-          "line": "~260",
-          "impact": "Users cannot generate AI insights",
-          "test_affected": "test_data_insights_generation"
+          "issue": "Task status is completed, expected awaiting_human_review"
         },
         {
-          "id": "ISS-002", 
-          "priority": "medium",
-          "title": "API Status Display Unclear",
-          "description": "Connection test doesn't show clear success/failure message",
-          "file": "human_loop_platform/app_working.py",
-          "line": "Stage 0 API section",
-          "impact": "Poor user experience",
-          "test_affected": "test_api_connection"
+          "test": "Approval UI Components",
+          "status": "fail",
+          "issue": "Approval UI components not found in Playwright test"
         },
         {
-          "id": "ISS-003",
-          "priority": "medium",
-          "title": "API Response Time Exceeds Target",
-          "description": "Plan generation takes 7.2s, target is <5s",
-          "file": "backend/ai_teammates/manager_v2.py",
-          "impact": "Poor performance",
-          "test_affected": "test_plan_generation"
+          "test": "Approval Decision Flow",
+          "status": "pass"
+        },
+        {
+          "test": "Rejection Handling",
+          "status": "fail",
+          "issue": "Task status is in_progress, expected human_rejected"
+        },
+        {
+          "test": "Audit Trail",
+          "status": "pass"
+        },
+        {
+          "test": "Real-time Updates",
+          "status": "pass"
         }
       ]
     }
   ],
-  "current_status": {
-    "last_execution": "baseline-001",
-    "status": "partial_pass",
-    "critical_issues": 1,
-    "total_issues": 3,
-    "next_test_priority": "Fix ISS-001 - Generate Insights Button",
-    "ready_for_next_iteration": true
-  },
-  "test_automation": {
-    "enabled": true,
-    "auto_run_on_changes": true,
-    "screenshot_validation": true,
-    "performance_monitoring": true,
-    "visual_regression": false,
-    "notification_channels": []
-  },
-  "baseline_metrics": {
-    "established": "2025-09-07T00:00:00Z",
-    "test_coverage": 71.4,
-    "pass_rate": 71.4,
-    "average_execution_time": "45s",
-    "performance_baseline": {
-      "page_load": "1.8s",
-      "api_response": "7.2s"
-    }
-  },
-  "improvement_targets": {
-    "test_coverage": 90,
-    "pass_rate": 100,
-    "api_response_time": "5s",
-    "visual_regression_rate": 5
-  }
+  "overall_status": "partial",
+  "notes": "HITL approval workflow partially implemented. Core functionality working but confidence threshold detection needs debugging.",
+  "screenshots": [
+    "screenshots_hitl/approval_ui.png"
+  ],
+  "next_steps": [
+    "Debug confidence threshold detection in orchestrator",
+    "Fix Playwright UI component tests",
+    "Complete WebSocket real-time updates (TASK-009)"
+  ]
 }
