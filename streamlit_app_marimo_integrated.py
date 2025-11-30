@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 import subprocess
 import tempfile
+import streamlit.components.v1 as components
 
 # Add src to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'python'))
@@ -21,6 +22,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'python'))
 from ai_personas import AITeamOrchestrator, ManagerPersona, AnalystPersona, AssociatePersona
 from marimo_integration.notebook_builder import NotebookBuilder
 from marimo_integration.notebook_runner import NotebookRunner
+from marimo_integration.server_manager import MarimoServerManager
 from reporting.report_generator import ReportGenerator
 
 # Page configuration
@@ -52,12 +54,18 @@ def init_session_state():
         'final_report': None,
         'marimo_notebooks': {},
         'gemini_model': 'gemini-2.0-flash-exp',
-        'ai_team': None
+        'ai_team': None,
+        'marimo_server_manager': None,
+        'active_notebook_url': None
     }
     
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+    # Initialize server manager if not exists (not serializable in session state direct dump, so check specifically)
+    if st.session_state.marimo_server_manager is None:
+        st.session_state.marimo_server_manager = MarimoServerManager()
 
 def add_to_conversation(persona: str, content: str):
     """Add message to conversation history"""
@@ -158,6 +166,9 @@ def display_setup_step():
                         st.session_state.project_initialized = True
                         st.session_state.current_step = 1
                         
+                        # Save data for marimo
+                        cache_data_for_marimo()
+
                         # Add to conversation
                         file_summary = "\\n".join([
                             f"- {name}: {df.shape[0]} rows, {df.shape[1]} columns"
@@ -384,108 +395,107 @@ def display_marimo_execution_step():
         st.error("No analysis tasks available.")
         return
     
-    # Progress tracking
-    progress_container = st.container()
-    status_container = st.container()
+    # Split screen: Tasks List & Marimo Viewer
+    col_tasks, col_viewer = st.columns([1, 2])
     
-    with progress_container:
-        st.markdown("### 📊 Execution Progress")
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-    
-    # Execute selected tasks
-    selected_tasks = [
-        (i, task) for i, task in enumerate(st.session_state.analysis_tasks, 1)
-        if st.session_state.get(f'selected_task_{i}', False)
-    ]
-    
-    if not selected_tasks:
-        selected_tasks = [(i, task) for i, task in enumerate(st.session_state.analysis_tasks[:3], 1)]
-    
-    total_tasks = len(selected_tasks)
-    task_results = []
-    
-    with status_container:
-        st.markdown("### 🔄 Execution Status")
+    with col_tasks:
+        st.markdown("### 📋 Analysis Tasks")
+
+        # Execute selected tasks
+        selected_tasks = [
+            (i, task) for i, task in enumerate(st.session_state.analysis_tasks, 1)
+            if st.session_state.get(f'selected_task_{i}', False)
+        ]
+
+        if not selected_tasks:
+            selected_tasks = [(i, task) for i, task in enumerate(st.session_state.analysis_tasks[:3], 1)]
         
+        # Task list
         for idx, (task_num, task) in enumerate(selected_tasks):
-            with st.expander(f"Task {task_num}: Executing...", expanded=True):
-                status_text.text(f"Processing task {idx + 1} of {total_tasks}...")
-                progress_bar.progress((idx + 1) / total_tasks)
+            with st.expander(f"Task {task_num}", expanded=False):
+                st.markdown(task)
                 
-                # Get code from analyst
-                with st.spinner(f"Generating code for task {task_num}..."):
-                    task_result = st.session_state.ai_team.analyst.execute_analysis_task(
-                        task,
-                        json.dumps(st.session_state.data_profiles)
-                    )
-                    
-                    if task_result and task_result.get('code'):
-                        st.code(task_result['code'], language='python')
-                        
-                        # Create marimo notebook
-                        notebook_id = f"task_{task_num}_{uuid.uuid4().hex[:8]}"
-                        notebook_path = create_marimo_notebook(
-                            task_result['code'],
-                            task,
-                            notebook_id
-                        )
-                        
-                        if notebook_path:
-                            st.success(f"✅ Marimo notebook created: {notebook_id}")
-                            st.session_state.marimo_notebooks[notebook_id] = notebook_path
+                # Generate notebook if needed
+                notebook_key = f"notebook_task_{task_num}"
+                if notebook_key not in st.session_state.marimo_notebooks:
+                    if st.button(f"⚡ Generate Notebook", key=f"gen_{task_num}"):
+                        with st.spinner(f"Generating code for task {task_num}..."):
+                            task_result = st.session_state.ai_team.analyst.execute_analysis_task(
+                                task,
+                                json.dumps(st.session_state.data_profiles)
+                            )
                             
-                            # Execute notebook
-                            with st.spinner("Executing in Marimo..."):
-                                execution_result = execute_marimo_notebook(notebook_path)
-                                if execution_result:
-                                    task_result['execution'] = execution_result
-                                    st.success("✅ Execution completed")
-                                else:
-                                    st.warning("⚠️ Execution completed with warnings")
-                        
-                        task_results.append(task_result)
-                    else:
-                        st.error(f"Failed to generate code for task {task_num}")
+                            if task_result and task_result.get('code'):
+                                notebook_id = f"task_{task_num}_{uuid.uuid4().hex[:8]}"
+                                notebook_path = create_marimo_notebook(
+                                    task_result['code'],
+                                    task,
+                                    notebook_id
+                                )
+                                st.session_state.marimo_notebooks[notebook_key] = notebook_path
+                                st.session_state.task_results.append(task_result)
+                                st.success("Notebook created!")
+                                st.rerun()
+
+                # Launch options if notebook exists
+                if notebook_key in st.session_state.marimo_notebooks:
+                    st.success("✅ Notebook Ready")
+
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        if st.button("✏️ Edit", key=f"edit_{task_num}"):
+                            st.session_state['active_notebook'] = st.session_state.marimo_notebooks[notebook_key]
+                            st.session_state['marimo_mode'] = 'edit'
+                            st.session_state['active_task_num'] = task_num
+                    with col_b:
+                        if st.button("▶️ Run", key=f"run_{task_num}"):
+                            st.session_state['active_notebook'] = st.session_state.marimo_notebooks[notebook_key]
+                            st.session_state['marimo_mode'] = 'run'
+                            st.session_state['active_task_num'] = task_num
+
+    with col_viewer:
+        st.markdown("### 📓 Notebook Viewer")
         
-        st.session_state.task_results = task_results
-        progress_bar.progress(1.0)
-        status_text.text("All tasks completed!")
-    
-    # Show results summary
-    if task_results:
-        st.divider()
-        st.markdown("### 📈 Results Summary")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Tasks Completed", len(task_results))
-        with col2:
-            st.metric("Notebooks Created", len(st.session_state.marimo_notebooks))
-        with col3:
-            st.metric("Success Rate", f"{len(task_results)/total_tasks*100:.0f}%")
-        
-        # Option to view notebooks
-        if st.session_state.marimo_notebooks:
-            st.markdown("### 📓 View Notebooks")
-            for notebook_id, path in st.session_state.marimo_notebooks.items():
-                col1, col2 = st.columns([3, 1])
-                with col1:
-                    st.text(f"📓 {notebook_id}")
-                with col2:
-                    if st.button("Open", key=f"open_{notebook_id}"):
-                        # This would open the marimo notebook
-                        st.info(f"Opening {notebook_id} in new tab...")
-    
+        if st.session_state.get('active_notebook'):
+            notebook_path = st.session_state['active_notebook']
+            mode = st.session_state.get('marimo_mode', 'edit')
+
+            st.info(f"Viewing Task {st.session_state.get('active_task_num', '?')} in {mode} mode")
+
+            # Start/Get server
+            try:
+                url = st.session_state.marimo_server_manager.start_server(notebook_path, mode)
+                st.session_state.active_notebook_url = url
+
+                # Embed iframe
+                if url:
+                    components.iframe(url, height=800, scrolling=True)
+                else:
+                    st.error("Failed to start Marimo server")
+
+            except Exception as e:
+                st.error(f"Error launching notebook: {e}")
+        else:
+            st.info("👈 Select a task and click 'Edit' or 'Run' to view the notebook here.")
+            # Placeholder image or text
+            st.markdown("""
+            <div style="text-align: center; padding: 50px; color: gray;">
+                <h3>Select a task to begin</h3>
+                <p>Generated notebooks will appear here</p>
+            </div>
+            """, unsafe_allow_html=True)
+
     # Navigation
     st.divider()
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("◀️ Back"):
+            st.session_state.marimo_server_manager.stop_server()
             st.session_state.current_step = 3
             st.rerun()
     with col3:
         if st.button("▶️ Generate Report", type="primary"):
+            st.session_state.marimo_server_manager.stop_server()
             st.session_state.current_step = 5
             st.rerun()
 
@@ -542,8 +552,8 @@ def display_final_report_step():
                 st.markdown(f"{i}. {task.split(':')[1] if ':' in task else task[:100]}")
             
             st.markdown("**Marimo Notebooks:**")
-            for notebook_id in st.session_state.marimo_notebooks:
-                st.markdown(f"- 📓 {notebook_id}")
+            for notebook_id in st.session_state.marimo_notebooks.values():
+                st.markdown(f"- 📓 {os.path.basename(notebook_id)}")
         
         # Conversation history
         with st.expander("💬 Analysis Conversation"):
@@ -578,6 +588,18 @@ def display_final_report_step():
         if st.button("🏠 New Analysis"):
             reset_session()
             st.rerun()
+
+def cache_data_for_marimo():
+    """Save dataframes to project cache directory"""
+    cache_dir = f"data/cache/{st.session_state.project_name.replace(' ', '_')}"
+    os.makedirs(cache_dir, exist_ok=True)
+
+    for name, df in st.session_state.dataframes.items():
+        # Save as CSV
+        safe_name = name.replace(' ', '_')
+        path = os.path.join(cache_dir, safe_name)
+        df.to_csv(path, index=False)
+        st.session_state.dataframes[name].attrs['cache_path'] = path
 
 def create_marimo_notebook(code: str, task_description: str, notebook_id: str) -> str:
     """Create a marimo notebook for the given code"""
@@ -619,11 +641,16 @@ mo.md("## Analysis Results")
 def generate_data_loading_code() -> str:
     """Generate code to load data in marimo notebook"""
     code_lines = []
-    for name, df in st.session_state.dataframes.items():
-        # Save dataframe to temp file
-        temp_path = f"/tmp/{name}"
-        df.to_csv(temp_path, index=False)
-        code_lines.append(f"df_{name.replace('.', '_')} = pd.read_csv('{temp_path}')")
+    cache_dir = f"data/cache/{st.session_state.project_name.replace(' ', '_')}"
+
+    # Use absolute path for reliability
+    abs_cache_dir = os.path.abspath(cache_dir)
+
+    for name in st.session_state.dataframes.keys():
+        safe_name = name.replace(' ', '_')
+        file_path = os.path.join(abs_cache_dir, safe_name)
+        var_name = f"df_{safe_name.replace('.', '_').replace('-', '_')}"
+        code_lines.append(f"{var_name} = pd.read_csv('{file_path}')")
     
     return "\\n".join(code_lines)
 
@@ -670,6 +697,10 @@ def save_project_state():
 
 def reset_session():
     """Reset session state"""
+    # Stop server if running
+    if st.session_state.get('marimo_server_manager'):
+        st.session_state.marimo_server_manager.stop_server()
+
     for key in list(st.session_state.keys()):
         if key not in ['gemini_api_key', 'gemini_model']:
             del st.session_state[key]
@@ -724,6 +755,10 @@ def main():
                     st.markdown(f"**▶️ {step}**")
                 else:
                     if st.button(step, key=f"nav_{i}"):
+                        # Stop Marimo server if moving away
+                        if st.session_state.get('marimo_server_manager'):
+                            st.session_state.marimo_server_manager.stop_server()
+
                         st.session_state.current_step = i
                         st.rerun()
         
